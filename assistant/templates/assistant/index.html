@@ -1,0 +1,155 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Boben AI 🍀</title>
+  <meta name="description" content="Boben AI: your study buddy, idea partner, and everyday sidekick.">
+
+  <!-- PWA -->
+  <link rel="manifest" href="{% url 'manifest' %}">
+  <meta name="theme-color" content="#5aa77f">
+  <link rel="icon" type="image/png" href="{% static 'assistant/icons/favicon-64.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'assistant/icons/apple-touch-icon.png' %}">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Boben AI">
+
+  <!-- Bootstrap (CDN) + our own styles -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{% static 'assistant/css/style.css' %}">
+</head>
+<body>
+  <!-- Reusable clover mascot (used in several places with <use>) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="clover" viewBox="0 0 64 64">
+      <g fill="#6cc491" stroke="#2f6b4f" stroke-width="2" stroke-linejoin="round">
+        <path d="M32 30 C24 30 18 24 18 17 C18 11 23 8 27 10 C30 11 32 14 32 14 C32 14 34 11 37 10 C41 8 46 11 46 17 C46 24 40 30 32 30Z"/>
+        <path d="M34 32 C34 24 40 18 47 18 C53 18 56 23 54 27 C53 30 50 32 50 32 C50 32 53 34 54 37 C56 41 53 46 47 46 C40 46 34 40 34 32Z"/>
+        <path d="M32 34 C40 34 46 40 46 47 C46 53 41 56 37 54 C34 53 32 50 32 50 C32 50 30 53 27 54 C23 56 18 53 18 47 C18 40 24 34 32 34Z"/>
+        <path d="M30 32 C30 40 24 46 17 46 C11 46 8 41 10 37 C11 34 14 32 14 32 C14 32 11 30 10 27 C8 23 11 18 17 18 C24 18 30 24 30 32Z"/>
+      </g>
+      <circle cx="32" cy="32" r="9" fill="#fff8e7" stroke="#2f6b4f" stroke-width="2"/>
+      <circle cx="29" cy="31" r="1.4" fill="#2f6b4f"/>
+      <circle cx="35" cy="31" r="1.4" fill="#2f6b4f"/>
+      <path d="M29 35 Q32 38 35 35" fill="none" stroke="#2f6b4f" stroke-width="1.6" stroke-linecap="round"/>
+    </symbol>
+  </svg>
+
+  <!-- Floating emojis go here (added by app.js). Decoration only. -->
+  <div class="floaties" id="floaties" aria-hidden="true"></div>
+
+  <a class="skip-link" href="#composer-input">Skip to message box</a>
+
+  <div class="app-shell">
+
+    <!-- ===== Sidebar (fixed on desktop, slide-in menu on phones) ===== -->
+    <aside class="offcanvas-lg offcanvas-start sidebar" tabindex="-1" id="sidebar" aria-labelledby="sidebarTitle">
+      <div class="offcanvas-header d-lg-none">
+        <span class="visually-hidden" id="sidebarTitle">Boben AI menu</span>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Close menu"></button>
+      </div>
+      <div class="offcanvas-body flex-column sidebar-inner">
+        <div class="brand">
+          <svg class="mascot mascot-lg" role="img" aria-label="Boben, a friendly clover mascot"><use href="#clover"/></svg>
+          <h1 class="brand-name">Boben AI <span aria-hidden="true">🍀</span></h1>
+          <p class="tagline">Your study buddy, idea partner, and everyday sidekick.</p>
+        </div>
+
+        <section aria-labelledby="quickTitle" class="side-section">
+          <h2 class="side-title" id="quickTitle">Quick prompts</h2>
+          <div class="quick-list">
+            <button type="button" class="chip" data-prompt="Explain this simply: ">Explain this simply 📚</button>
+            <button type="button" class="chip" data-prompt="Help me code: ">Help me code 💻</button>
+            <button type="button" class="chip" data-prompt="Let's brainstorm ideas for: ">Let's brainstorm 💡</button>
+            <button type="button" class="chip" data-prompt="Help me organize these tasks: ">Organize my tasks 📝</button>
+            <button type="button" class="chip" data-prompt="Make this sound more natural: ">Make this sound natural ✍️</button>
+          </div>
+        </section>
+
+        <section aria-labelledby="ctrlTitle" class="side-section">
+          <h2 class="side-title" id="ctrlTitle">Chat controls</h2>
+          <button type="button" class="btn btn-soft w-100 mb-2" id="clearBtnSide">🧹 Clear chat</button>
+          <button type="button" class="btn btn-soft w-100 mb-2" id="installBtnSide" hidden>📲 Install app</button>
+        </section>
+
+        <p class="side-note mt-auto">
+          Boben AI can make mistakes, so double-check important stuff. 💚
+        </p>
+      </div>
+    </aside>
+
+    <!-- ===== Main column ===== -->
+    <div class="main-col">
+      <header class="topbar">
+        <button class="btn btn-icon d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar"
+                aria-controls="sidebar" aria-label="Open menu">☰</button>
+        <svg class="mascot mascot-sm d-lg-none" aria-hidden="true"><use href="#clover"/></svg>
+        <div class="topbar-title">
+          <strong>Boben AI 🍀</strong>
+          <span class="d-none d-sm-inline text-muted-soft">Your study buddy</span>
+        </div>
+        <span class="status-pill online" id="statusPill" role="status" aria-live="polite">
+          <span class="dot" aria-hidden="true"></span><span id="statusText">Online</span>
+        </span>
+        <button type="button" class="btn btn-soft btn-sm d-none d-lg-inline-flex" id="installBtn" hidden>📲 Install</button>
+        <button type="button" class="btn btn-soft btn-sm" id="clearBtn" aria-label="Clear chat">🧹<span class="d-none d-sm-inline">&nbsp;Clear</span></button>
+      </header>
+
+      <div class="offline-banner" id="offlineBanner" role="alert" hidden>
+        📡 You're offline. You can still read this chat, but Boben needs the internet to answer new questions.
+      </div>
+
+      <main class="chat-wrap">
+        <div class="chat-log" id="chatLog" role="log" aria-live="polite" aria-relevant="additions" aria-label="Conversation with Boben AI">
+
+          <!-- Home screen (hidden once the chat starts) -->
+          <section class="welcome" id="welcome">
+            <svg class="mascot mascot-xl" aria-hidden="true"><use href="#clover"/></svg>
+            <div class="bubble bubble-ai welcome-bubble">
+              Hey there! 💚 I'm Boben AI. Need help with school, coding, ideas, or just figuring something out? Let's work on it together.
+            </div>
+            <p class="suggest-label">Try one of these:</p>
+            <div class="suggest-grid">
+              <button type="button" class="suggest-card" data-send="Can you explain photosynthesis in simple terms so I can write it in my notes?">
+                <span aria-hidden="true">🌱</span> Explain photosynthesis simply
+              </button>
+              <button type="button" class="suggest-card" data-send="What's the difference between a list and a tuple in Python? Show a tiny example.">
+                <span aria-hidden="true">🐍</span> Python list vs tuple
+              </button>
+              <button type="button" class="suggest-card" data-send="Help me make a realistic study plan for the week. I have 3 exams and a project.">
+                <span aria-hidden="true">📅</span> Plan my study week
+              </button>
+              <button type="button" class="suggest-card" data-send="Give me 5 fun project ideas for a Computer Science class.">
+                <span aria-hidden="true">💡</span> Project ideas for CS class
+              </button>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- Composer -->
+        <form class="composer" id="composer" autocomplete="off">
+          <label for="composer-input" class="visually-hidden">Ask Boben AI a question</label>
+          <textarea id="composer-input" rows="1" maxlength="2000" placeholder="Ask Boben anything… (Enter to send, Shift+Enter for a new line)"></textarea>
+          <div class="composer-row">
+            <span class="counter" id="counter" aria-hidden="true">0 / 2000</span>
+            <button type="submit" class="btn btn-send" id="sendBtn">Send <span aria-hidden="true">➤</span></button>
+          </div>
+        </form>
+
+        <footer class="footer-note">Made with 💚, a little humor, and lots of curiosity.</footer>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Paths from Django, so the JavaScript never hard-codes them.
+    window.BOBEN = {
+      chatUrl: "{% url 'chat' %}",
+      swUrl: "{% url 'serviceworker' %}"
+    };
+  </script>
+  <script src="{% static 'assistant/js/app.js' %}"></script>
+</body>
+</html>
