@@ -2,17 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Offline · Boben AI 🍀</title>
-  <meta name="theme-color" content="#5aa77f">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Offline · Boben</title>
+  <meta name="theme-color" content="#eaf1ed">
   <link rel="stylesheet" href="{% static 'assistant/css/style.css' %}">
 </head>
 <body class="offline-page">
-  <main class="offline-card">
-    <h1>You're offline 📡</h1>
-    <p>Boben AI needs the internet to answer new questions, and this page isn't saved on your device yet.</p>
-    <p>Reconnect and try again. I'll be right here. 🍀</p>
-    <button type="button" class="btn btn-send" onclick="location.href='/'">Try again</button>
+  <div class="backdrop" aria-hidden="true"><i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i><i class="blob b4"></i></div>
+  <main class="offline-card glass">
+    <h1>You're offline</h1>
+    <p>This page isn't saved on your device yet, and Boben needs a connection to answer new questions.</p>
+    <p>Reconnect and give it another go.</p>
+    <button type="button" class="new-chat" onclick="location.href='/'">Try again</button>
   </main>
 </body>
 </html>

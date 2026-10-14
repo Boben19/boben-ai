@@ -54,3 +54,26 @@ class ChatEndpointTests(SimpleTestCase):
         r = self.post({"message": "hi"})
         self.assertEqual(r.status_code, 500)
         self.assertIn("GEMINI_API_KEY", r.json()["error"])
+
+    @patch("assistant.views.ask_gemini", return_value="ok")
+    def test_mode_length_and_name_are_passed_and_cleaned(self, fake):
+        self.post({"message": "hi", "mode": "study", "length": "short", "name": "Jhon <script>"})
+        kwargs = fake.call_args.kwargs
+        self.assertEqual(kwargs["mode"], "study")
+        self.assertEqual(kwargs["length"], "short")
+        self.assertEqual(kwargs["name"], "Jhon script")  # angle brackets removed
+
+    @patch("assistant.views.ask_gemini", return_value="ok")
+    def test_unknown_mode_and_length_fall_back(self, fake):
+        self.post({"message": "hi", "mode": "hack", "length": "huge", "name": 123})
+        kwargs = fake.call_args.kwargs
+        self.assertEqual((kwargs["mode"], kwargs["length"], kwargs["name"]), ("chat", "balanced", ""))
+
+
+class PersonaTests(SimpleTestCase):
+    def test_persona_never_labels_itself_as_ai_by_default(self):
+        from .gemini import build_system_instruction
+        text = build_system_instruction("code", "detailed", "Maya")
+        self.assertIn("Mode: Code", text)
+        self.assertIn("Maya", text)
+        self.assertIn("you are a program", text)  # still honest if someone sincerely asks

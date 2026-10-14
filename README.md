@@ -1,4 +1,4 @@
-# Boben AI 🍀: a personalized AI assistant PWA
+# Boben: a personal study partner (PWA)
 
 Django + Bootstrap + vanilla JavaScript + Google Gemini. No database, no login.
 The Gemini API key stays on the server (in `.env`) and never reaches the browser.
@@ -31,6 +31,17 @@ boben_ai/
         ├── js/serviceworker.js  <- caching (served from "/" by views.service_worker)
         └── icons/               <- PWA icons
 ```
+
+## What the redesign added
+
+- **Look:** frosted-glass panels over a soft colour backdrop, iOS-style bubbles, rounded controls, safe-area support for iPhone notches, automatic light/dark mode.
+- **Multiple chats:** a sidebar list, rename by tapping the title, delete with Undo, and a new chat shortcut (Ctrl/Cmd + K, or long-press the app icon once installed).
+- **Modes:** Chat, Study, Code, Write, Plan. The mode is sent with each message and adds a short note to the personality (`MODE_NOTES` in `gemini.py`).
+- **Settings sheet:** first name (so replies feel personal), Auto/Light/Dark, and reply length (Short/Balanced/Detailed).
+- **Reply tools:** copy, read aloud, write a new reply, copy button on code blocks, dictation (where the browser supports it), and save a chat as a .txt file.
+- **Offline:** the app still opens and old chats stay readable. An "Offline" pill and a banner appear, and the message stays in the box until you reconnect.
+- **Safety:** mode, length and name are checked on the server against a fixed list before they reach the prompt. The API key still never leaves the server.
+- **Voice of the app:** the interface and the personality never label themselves as "AI". If someone sincerely asks whether they are talking to a person or a program, Boben answers honestly.
 
 ## Windows setup (PowerShell or Command Prompt)
 
@@ -72,13 +83,13 @@ To run the tests (they don't use your API key): `python manage.py test`.
 
 **Installation**
 1. Open http://127.0.0.1:8000 and wait a few seconds.
-2. An **Install** button appears in the top bar (or in the menu on phones), and Chrome shows an install icon in the address bar. Click it.
+2. An **Install app** button appears at the bottom of the sidebar, and Chrome shows an install icon in the address bar. Click it. On an iPhone, the button shows how to use Share → Add to Home Screen.
 3. Check the setup: DevTools (F12) → **Application** → **Manifest** (no errors, icons shown) and **Service Workers** (status "activated").
 
 **Offline**
 1. Load the page once while online, so the cache fills up.
 2. In DevTools → **Application → Service Workers**, tick **Offline** (or turn off Wi-Fi).
-3. Refresh. The interface should still load, the banner "You're offline…" appears, and the status pill turns orange.
+3. Refresh. The interface should still load, the "Offline" pill and the banner appear at the top.
 4. Try sending a message. Boben explains that new answers need the internet. Untick **Offline** and everything works again.
 
 Testing on a phone: the phone needs HTTPS to install the app (plain `http://192.168.x.x` won't work). Use a deployed HTTPS site or a tunnel.
@@ -97,7 +108,7 @@ Testing on a phone: the phone needs HTTPS to install the app (plain `http://192.
 
 | Problem | Fix |
 |---|---|
-| "Boben AI isn't set up yet" | `.env` is missing or `GEMINI_API_KEY` is empty. Save it and restart the server. |
+| "Boben isn't set up yet" | `.env` is missing or `GEMINI_API_KEY` is empty. Save it and restart the server. |
 | "Gemini rejected the request" | The key is wrong, or the model isn't available to you. Try another `GEMINI_MODEL`. |
 | "Gemini is busy… error 503" | That model is overloaded. Boben already tries backup models (`GEMINI_FALLBACK_MODELS`). Wait a minute, or put a different model first in `GEMINI_MODEL`. The server terminal shows Google's exact message. |
 | "free-tier limit" (429) | Wait a minute. Free keys have per-minute and per-day limits. |
@@ -112,4 +123,4 @@ Testing on a phone: the phone needs HTTPS to install the app (plain `http://192.
 
 - Never commit `.env`. If a key ever leaks, delete it in Google AI Studio and make a new one.
 - In production set `DJANGO_DEBUG=False`, a real `DJANGO_SECRET_KEY`, and your domain in `DJANGO_ALLOWED_HOSTS`. Serve static files with `collectstatic` and a server such as WhiteNoise, and use HTTPS.
-- Chat history is stored only in the user's own browser (localStorage). "Clear chat" removes it.
+- Chat history is stored only in the user's own browser (localStorage). "Delete all chats" in Settings removes it.

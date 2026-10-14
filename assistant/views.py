@@ -1,4 +1,5 @@
 import json
+import re
 from pathlib import Path
 
 from django.conf import settings
@@ -7,7 +8,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 
-from .gemini import GeminiError, ask_gemini
+from .gemini import LENGTH_NOTES, MODE_NOTES, GeminiError, ask_gemini
 
 
 @ensure_csrf_cookie
@@ -43,7 +44,8 @@ def service_worker(request):
 def chat(request):
     """
     POST /api/chat/
-    Body: {"message": "...", "history": [{"role": "user"|"assistant", "text": "..."}]}
+    Body: {"message": "...", "history": [{"role": "user"|"assistant", "text": "..."}],
+           "mode": "chat|study|code|write|plan", "length": "short|balanced|detailed", "name": "..."}
     Returns: {"reply": "..."} or {"error": "..."}
     CSRF is checked automatically by Django's middleware.
     """
@@ -58,7 +60,7 @@ def chat(request):
     # ---- validate the new message ----
     message = body.get("message")
     if not isinstance(message, str) or not message.strip():
-        return JsonResponse({"error": "Type a message first and I'll jump in."}, status=400)
+        return JsonResponse({"error": "Type a message first and I'll jump right in."}, status=400)
     message = message.strip()
     if len(message) > settings.MAX_PROMPT_CHARS:
         return JsonResponse(
@@ -91,8 +93,17 @@ def chat(request):
         while history and history[0]["role"] != "user":
             history.pop(0)
 
+    # ---- optional settings (checked against a fixed list, so nothing odd reaches the prompt) ----
+    mode = body.get("mode") if body.get("mode") in MODE_NOTES else "chat"
+    length = body.get("length") if body.get("length") in LENGTH_NOTES else "balanced"
+    name = body.get("name") if isinstance(body.get("name"), str) else ""
+    name = re.sub(r"[^\w\s'.-]", "", name).strip()[:30]
+
     try:
-        reply = ask_gemini(settings.GEMINI_API_KEY, settings.GEMINI_MODELS, history, message)
+        reply = ask_gemini(
+            settings.GEMINI_API_KEY, settings.GEMINI_MODELS, history, message,
+            mode=mode, length=length, name=name,
+        )
     except GeminiError as err:
         return JsonResponse({"error": err.message}, status=err.status)
 

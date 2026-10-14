@@ -1,5 +1,5 @@
 """
-Django settings for Boben AI.
+Django settings for Boben.
 
 No database and no login are needed, so those parts are switched off.
 Secrets (Gemini key, Django secret key) are read from the .env file.

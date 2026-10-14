@@ -1,14 +1,14 @@
-/* Boben AI service worker
+/* Boben service worker
  *
  * - On install: saves the "app shell" (page + CSS + JS + icons + Bootstrap) in the cache.
  * - Pages:   try the network first (fresh), fall back to the cached copy when offline.
  * - Static:  use the cache first (fast), update it quietly in the background.
- * - /api/:   NEVER cached. New Gemini answers always need the internet.
+ * - /api/:   NEVER cached. New replies always need the internet.
  *
  * Bump CACHE_VERSION whenever you change cached files so old caches get deleted.
  */
-const CACHE_VERSION = "v1";
-const CACHE_NAME = "boben-ai-" + CACHE_VERSION;
+const CACHE_VERSION = "v2";
+const CACHE_NAME = "boben-" + CACHE_VERSION;
 
 // These paths must match STATIC_URL ("/static/") in config/settings.py.
 const APP_SHELL = [
@@ -46,7 +46,7 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k.startsWith("boben-ai-") && k !== CACHE_NAME).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k.startsWith("boben") && k !== CACHE_NAME).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
