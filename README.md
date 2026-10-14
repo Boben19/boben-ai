@@ -9,6 +9,7 @@ The Gemini API key stays on the server (in `.env`) and never reaches the browser
 boben_ai/
 ├── manage.py
 ├── requirements.txt
+├── list_models.py          <- lists the Gemini models your key can use
 ├── .env.example            <- copy to .env and add your key
 ├── .gitignore              <- keeps .env out of GitHub
 ├── config/                 <- Django project settings
@@ -98,8 +99,9 @@ Testing on a phone: the phone needs HTTPS to install the app (plain `http://192.
 |---|---|
 | "Boben AI isn't set up yet" | `.env` is missing or `GEMINI_API_KEY` is empty. Save it and restart the server. |
 | "Gemini rejected the request" | The key is wrong, or the model isn't available to you. Try another `GEMINI_MODEL`. |
+| "Gemini is busy… error 503" | That model is overloaded. Boben already tries backup models (`GEMINI_FALLBACK_MODELS`). Wait a minute, or put a different model first in `GEMINI_MODEL`. The server terminal shows Google's exact message. |
 | "free-tier limit" (429) | Wait a minute. Free keys have per-minute and per-day limits. |
-| "That Gemini model wasn't found" | Fix the spelling of `GEMINI_MODEL`. |
+| "That Gemini model wasn't found" | Run `python list_models.py` to see which models your key can use, then put one in `GEMINI_MODEL` (no `models/` prefix) and restart. |
 | `ModuleNotFoundError: django` | Activate the venv (`venv\Scripts\activate`), then `pip install -r requirements.txt`. |
 | No Install button | The browser must support it (Chrome/Edge). Check DevTools → Application → Manifest for errors. If you already installed it, it hides. |
 | Changed CSS/JS but the old one shows | Update `CACHE_VERSION` in `serviceworker.js`, or DevTools → Application → Service Workers → **Unregister**, then hard refresh (Ctrl+Shift+R). |

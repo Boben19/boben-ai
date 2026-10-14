@@ -70,6 +70,16 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ---- Gemini -----------------------------------------------------------------
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash").strip()
+# Backup models, tried in order when the main one is busy (503), missing (404) or rate-limited (429).
+GEMINI_FALLBACK_MODELS = [
+    m.strip()
+    for m in os.environ.get(
+        "GEMINI_FALLBACK_MODELS", "gemini-3.5-flash-lite,gemini-2.5-flash,gemini-2.5-flash-lite"
+    ).split(",")
+    if m.strip()
+]
+# Final ordered list with no duplicates: main model first.
+GEMINI_MODELS = list(dict.fromkeys([GEMINI_MODEL] + GEMINI_FALLBACK_MODELS))
 
 # Limits so nobody can send huge requests with your free-tier key.
 MAX_PROMPT_CHARS = 2000        # longest single message

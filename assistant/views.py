@@ -92,7 +92,7 @@ def chat(request):
             history.pop(0)
 
     try:
-        reply = ask_gemini(settings.GEMINI_API_KEY, settings.GEMINI_MODEL, history, message)
+        reply = ask_gemini(settings.GEMINI_API_KEY, settings.GEMINI_MODELS, history, message)
     except GeminiError as err:
         return JsonResponse({"error": err.message}, status=err.status)
 

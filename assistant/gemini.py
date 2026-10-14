@@ -4,6 +4,8 @@ Talks to the Google Gemini REST API.
 This file is the ONLY place that uses the API key, and it only runs on the
 server, so the key never reaches the browser.
 """
+import time
+
 import requests
 
 API_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
@@ -30,12 +32,17 @@ Style rules:
 
 
 class GeminiError(Exception):
-    """An error with a message that is safe to show to the user."""
+    """An error with a message that is safe to show to the user.
 
-    def __init__(self, message, status=502):
+    try_next_model=True means "this model has a problem (busy, missing, rate-limited),
+    so another model might still work".
+    """
+
+    def __init__(self, message, status=502, try_next_model=False):
         super().__init__(message)
         self.message = message
         self.status = status
+        self.try_next_model = try_next_model
 
 
 def build_contents(history, prompt):
@@ -52,49 +59,52 @@ def build_contents(history, prompt):
     return contents
 
 
-def ask_gemini(api_key, model, history, prompt, timeout=30):
-    """Send the conversation to Gemini and return the reply text."""
-    if not api_key:
-        raise GeminiError(
-            "Boben AI isn't set up yet. Add GEMINI_API_KEY to the .env file and restart the server.",
-            status=500,
-        )
-
-    payload = {
-        "system_instruction": {"parts": [{"text": SYSTEM_INSTRUCTION}]},
-        "contents": build_contents(history, prompt),
-        "generationConfig": {"temperature": 0.8, "maxOutputTokens": 1024},
-    }
+def _call_model(api_key, model, payload, timeout):
+    """Ask ONE model. Returns the reply text or raises GeminiError."""
     # The key goes in a header, never in the URL, so it can't leak into logs.
     headers = {"Content-Type": "application/json", "x-goog-api-key": api_key}
 
-    try:
-        resp = requests.post(
-            API_URL.format(model=model), json=payload, headers=headers, timeout=timeout
-        )
-    except requests.exceptions.Timeout:
-        raise GeminiError("Gemini took too long to answer. Please try again.", status=504)
-    except requests.exceptions.RequestException:
-        raise GeminiError(
-            "I couldn't reach Gemini. Check your internet connection and try again.", status=502
-        )
+    resp = None
+    for attempt in range(2):  # one quick retry for short hiccups
+        try:
+            resp = requests.post(
+                API_URL.format(model=model), json=payload, headers=headers, timeout=timeout
+            )
+        except requests.exceptions.Timeout:
+            raise GeminiError("Gemini took too long to answer. Please try again.", status=504, try_next_model=True)
+        except requests.exceptions.RequestException:
+            raise GeminiError(
+                "I couldn't reach Gemini. Check your internet connection and try again.", status=502
+            )
+        if resp.status_code in (500, 502, 503, 504) and attempt == 0:
+            time.sleep(1.5)
+            continue
+        break
+
+    if resp.status_code != 200:
+        # Print Google's real explanation in the server terminal (never shown to the user).
+        body = resp.text[:600].replace(api_key, "<hidden>") if hasattr(resp, "text") else ""
+        print(f"[Boben AI] Gemini returned HTTP {resp.status_code} for model '{model}': {body}", flush=True)
 
     if resp.status_code == 429:
         raise GeminiError(
-            "I've hit the free-tier limit for now. Wait a minute and try again.", status=429
+            "I've hit the free-tier limit for now. Wait a minute and try again.", status=429, try_next_model=True
         )
     if resp.status_code in (400, 401, 403):
         # Don't echo Google's raw error (it may mention the key).
         raise GeminiError(
-            "Gemini rejected the request. Check that your API key and model name are valid.",
-            status=502,
+            "Gemini rejected the request. Check that your API key and model name are valid.", status=502
         )
     if resp.status_code == 404:
         raise GeminiError(
-            "That Gemini model wasn't found. Check GEMINI_MODEL in your .env file.", status=502
+            "That Gemini model wasn't found. Check GEMINI_MODEL in your .env file.", status=502, try_next_model=True
         )
     if resp.status_code >= 500:
-        raise GeminiError("Gemini is having a bad moment. Please try again shortly.", status=502)
+        raise GeminiError(
+            "Gemini is busy right now (it answered with error %d). Please try again in a minute." % resp.status_code,
+            status=502,
+            try_next_model=True,
+        )
     if resp.status_code != 200:
         raise GeminiError("Something unexpected happened with Gemini. Please try again.", status=502)
 
@@ -115,3 +125,37 @@ def ask_gemini(api_key, model, history, prompt, timeout=30):
     if not text:
         raise GeminiError("I didn't get an answer back. Please try rephrasing.", status=502)
     return text
+
+
+def ask_gemini(api_key, models, history, prompt, timeout=30):
+    """Send the conversation to Gemini and return the reply text.
+
+    `models` is a model name or a list of names. If one model is busy, missing or
+    rate-limited, we automatically try the next one in the list.
+    """
+    if not api_key:
+        raise GeminiError(
+            "Boben AI isn't set up yet. Add GEMINI_API_KEY to the .env file and restart the server.",
+            status=500,
+        )
+    if isinstance(models, str):
+        models = [models]
+
+    payload = {
+        "system_instruction": {"parts": [{"text": SYSTEM_INSTRUCTION}]},
+        "contents": build_contents(history, prompt),
+        "generationConfig": {"temperature": 0.8, "maxOutputTokens": 1024},
+    }
+
+    last_error = None
+    for i, model in enumerate(models):
+        try:
+            text = _call_model(api_key, model, payload, timeout)
+            if i > 0:
+                print(f"[Boben AI] Answered using backup model '{model}'.", flush=True)
+            return text
+        except GeminiError as err:
+            last_error = err
+            if not err.try_next_model:
+                raise
+    raise last_error
