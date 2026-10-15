@@ -1,8 +1,10 @@
 """
-Django settings for Boben AI.
+Django settings for Boben.
+Developed by Jhon Grover Longsud.
 
-No database and no login are needed, so those parts are switched off.
-Secrets (Gemini key, Django secret key) are read from the .env file.
+Accounts, sessions and OAuth (Google, GitHub, Facebook) live in the "accounts" app.
+Secrets (Gemini key, Django secret key, OAuth client secrets) are read from the
+.env file or real environment variables. They are never sent to the browser.
 """
 import os
 from pathlib import Path
@@ -25,14 +27,22 @@ ALLOWED_HOSTS = [
 
 # ---- Apps -------------------------------------------------------------------
 INSTALLED_APPS = [
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
     "django.contrib.staticfiles",
     "assistant",
+    "accounts",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
@@ -46,6 +56,8 @@ TEMPLATES = [
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
@@ -53,8 +65,72 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-# No database needed for this project.
-DATABASES = {}
+# ---- Database (accounts, profiles, sessions) ----------------------------------
+# SQLite by default. Set DATABASE_PATH to keep the file somewhere else (for example a mounted disk).
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.environ.get("DATABASE_PATH", str(BASE_DIR / "db.sqlite3")),
+    }
+}
+
+# ---- Authentication ---------------------------------------------------------------
+AUTHENTICATION_BACKENDS = ["accounts.backends.EmailBackend"]
+LOGIN_URL = "accounts:login"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "accounts:login"
+
+AUTH_PASSWORD_VALIDATORS = [
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", "OPTIONS": {"min_length": 8}},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+]
+
+# ---- Sessions and cookies -----------------------------------------------------------
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 14        # "Remember me" keeps you signed in for 14 days
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = "Lax"               # Lax is required so the browser keeps the session after an OAuth redirect
+CSRF_COOKIE_SAMESITE = "Lax"
+SESSION_SAVE_EVERY_REQUEST = False
+
+# Behind a proxy or on a host such as Render/Railway, set DJANGO_BEHIND_PROXY=True so Django
+# sees the original https:// scheme (needed for correct OAuth redirect URLs).
+if os.environ.get("DJANGO_BEHIND_PROXY", "False").lower() in ("1", "true", "yes"):
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+CSRF_TRUSTED_ORIGINS = [
+    o.strip() for o in os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()
+]
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Public address of the site, used to build OAuth callback URLs, for example https://boben.example.com
+# Leave empty in development: the address of the current request is used.
+SITE_URL = os.environ.get("SITE_URL", "").strip().rstrip("/")
+
+# ---- OAuth (client secrets stay on the server) -------------------------------------
+# Client IDs are public. Client SECRETS must only come from the environment.
+OAUTH_PROVIDERS = {
+    "google": {
+        "client_id": os.environ.get("GOOGLE_CLIENT_ID", "").strip(),
+        "client_secret": os.environ.get("GOOGLE_CLIENT_SECRET", "").strip(),
+    },
+    "github": {
+        "client_id": os.environ.get("GITHUB_CLIENT_ID", "").strip(),
+        "client_secret": os.environ.get("GITHUB_CLIENT_SECRET", "").strip(),
+    },
+    "facebook": {
+        "client_id": os.environ.get("FACEBOOK_APP_ID", "").strip(),
+        "client_secret": os.environ.get("FACEBOOK_APP_SECRET", "").strip(),
+    },
+}
+FACEBOOK_GRAPH_VERSION = os.environ.get("FACEBOOK_GRAPH_VERSION", "v25.0").strip()
+
+# Profile picture limits
+AVATAR_MAX_UPLOAD_BYTES = 3 * 1024 * 1024
+AVATAR_SIZE = 256
 
 # ---- Static files -----------------------------------------------------------
 STATIC_URL = "/static/"

@@ -1,22 +1,25 @@
-/* Boben AI service worker
+/* Boben service worker
  *
  * - On install: saves the "app shell" (page + CSS + JS + icons + Bootstrap) in the cache.
  * - Pages:   try the network first (fresh), fall back to the cached copy when offline.
  * - Static:  use the cache first (fast), update it quietly in the background.
- * - /api/:   NEVER cached. New Gemini answers always need the internet.
+ * - /api/:   NEVER cached. New replies always need the internet.
+ * - /accounts/ (sign-in, profile, OAuth): NEVER cached, and a redirect to the sign-in page is never
+ *   stored as the home page. Signing out also deletes this cache (see auth.js).
  *
  * Bump CACHE_VERSION whenever you change cached files so old caches get deleted.
  */
-const CACHE_VERSION = "v1";
-const CACHE_NAME = "boben-ai-" + CACHE_VERSION;
+const CACHE_VERSION = "v4";
+const CACHE_NAME = "boben-" + CACHE_VERSION;
 
 // These paths must match STATIC_URL ("/static/") in config/settings.py.
 const APP_SHELL = [
-  "/",
   "/offline/",
   "/manifest.json",
   "/static/assistant/css/style.css",
   "/static/assistant/js/app.js",
+  "/static/assistant/js/emoji-bg.js",
+  "/static/assistant/js/auth.js",
   "/static/assistant/icons/icon-192.png",
   "/static/assistant/icons/icon-512.png",
   "/static/assistant/icons/icon-maskable-512.png",
@@ -46,7 +49,7 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k.startsWith("boben-ai-") && k !== CACHE_NAME).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k.startsWith("boben") && k !== CACHE_NAME).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
@@ -57,14 +60,15 @@ self.addEventListener("fetch", (event) => {
 
   // Only handle GET requests. Chat messages (POST) and /api/ go straight to the network.
   if (request.method !== "GET") return;
-  if (url.origin === self.location.origin && url.pathname.startsWith("/api/")) return;
+  if (url.origin === self.location.origin && (url.pathname.startsWith("/api/") || url.pathname.startsWith("/accounts/"))) return;
 
   // Page navigations: network first, then cache, then the offline page.
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          if (response.ok && url.origin === self.location.origin && (url.pathname === "/" || url.pathname === "/offline/")) {
+          // Only keep the real chat page (a signed-in 200). If the server sent us to the sign-in page, response.redirected is true.
+          if (response.ok && !response.redirected && url.origin === self.location.origin && (url.pathname === "/" || url.pathname === "/offline/")) {
             const copy = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
           }

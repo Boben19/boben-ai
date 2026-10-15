@@ -1,0 +1,127 @@
+{% extends "accounts/_base.html" %}
+{% block title %}Your profile · Boben{% endblock %}
+{% block card_class %}auth-wide{% endblock %}
+{% block back_label %}Back to chat{% endblock %}
+{% block content %}
+<header class="profile-head">
+  <div class="avatar avatar-lg" id="avatarPreview">
+    {% if profile.has_avatar %}<img src="{% url 'accounts:avatar' %}?v={{ profile.avatar_version }}" alt="Your profile picture">
+    {% elif profile.avatar_url %}<img src="{{ profile.avatar_url }}" alt="Your profile picture" referrerpolicy="no-referrer">
+    {% else %}<span>{{ profile.shown_name|slice:":1"|upper }}</span>{% endif %}
+  </div>
+  <div class="profile-who">
+    <h1>{{ profile.shown_name }} <span class="emo" aria-hidden="true">🌿</span></h1>
+    <p class="auth-sub">{{ request.user.email }}{% if linked %} · linked: {{ linked|join:", " }}{% endif %}</p>
+  </div>
+  <form method="post" action="{% url 'accounts:logout' %}" class="logout-form" data-logout>
+    {% csrf_token %}
+    <button type="submit" class="ghost-btn">Sign out</button>
+  </form>
+</header>
+
+{% include "accounts/_messages.html" %}
+{% if form.errors %}<p class="flash flash-error" role="alert">Some details need another look. Check the highlighted fields below.</p>{% endif %}
+
+<form method="post" enctype="multipart/form-data" class="auth-form profile-form" novalidate data-auth-form>
+  {% csrf_token %}
+
+  <fieldset class="group">
+    <legend><span class="emo" aria-hidden="true">📸</span> Basics</legend>
+    <div class="avatar-row">
+      <div class="field grow">
+        <label for="id_avatar">Profile picture</label>
+        <input type="file" id="id_avatar" name="avatar" accept="image/png,image/jpeg,image/webp,image/gif">
+        <p class="hint">JPG, PNG, WebP or GIF, up to 3 MB. It's cropped to a square.</p>
+        {% for e in form.avatar.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+        {% if profile.has_avatar %}<label class="check"><input type="checkbox" name="remove_avatar"> Remove my picture</label>{% endif %}
+      </div>
+    </div>
+    <div class="field">
+      <label for="id_display_name">Name</label>
+      <input type="text" id="id_display_name" name="display_name" maxlength="60" value="{{ form.display_name.value|default:'' }}" autocomplete="name">
+      {% for e in form.display_name.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+    </div>
+    <div class="field">
+      <label for="id_bio">Bio</label>
+      <textarea id="id_bio" name="bio" rows="3" maxlength="500" placeholder="A few lines about you: what you study or do, goals, anything useful.">{{ form.bio.value|default:'' }}</textarea>
+      <p class="hint"><span data-count-for="id_bio">0</span> / 500</p>
+      {% for e in form.bio.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+    </div>
+  </fieldset>
+
+  <fieldset class="group">
+    <legend><span class="emo" aria-hidden="true">🎯</span> Interests and personality</legend>
+    <div class="field">
+      <label for="id_interests">Interests</label>
+      <input type="text" id="id_interests" name="interests" maxlength="600" value="{{ interests_text }}" placeholder="Python, chess, basketball, cooking">
+      <p class="hint">Separate with commas. Up to 12.</p>
+    </div>
+    <div class="field">
+      <span class="label" id="lblTraits">Personality and learning traits</span>
+      <div class="pill-grid" role="group" aria-labelledby="lblTraits">
+        {% for t in traits %}
+        <label class="pill"><input type="checkbox" name="traits" value="{{ t.key }}" {% if t.checked %}checked{% endif %}><span>{{ t.label }}</span></label>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="field">
+      <label for="id_communication_style">Communication style</label>
+      <select id="id_communication_style" name="communication_style">
+        {% for value, text in styles %}<option value="{{ value }}" {% if form.communication_style.value == value %}selected{% endif %}>{{ text }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="id_preferences">Preferences</label>
+      <textarea id="id_preferences" name="preferences" rows="3" maxlength="500" placeholder="For example: explain with real-life analogies, keep code examples in Python, give me a quick summary first.">{{ form.preferences.value|default:'' }}</textarea>
+      <p class="hint"><span data-count-for="id_preferences">0</span> / 500</p>
+    </div>
+  </fieldset>
+
+  <fieldset class="group">
+    <legend><span class="emo" aria-hidden="true">🔒</span> AI personalization</legend>
+    <p class="hint">You decide what Boben may use to tailor its replies. Nothing is shared with anyone else, and turning a switch off stops it from being sent with your next message.</p>
+    <label class="switch master">
+      <input type="checkbox" name="personalize" id="id_personalize" {% if form.personalize.value %}checked{% endif %}>
+      <span class="switch-ui" aria-hidden="true"></span>
+      <span class="switch-text"><strong>Personalize Boben's replies</strong><small>Master switch for everything below.</small></span>
+    </label>
+    <div class="switch-list" id="switchList">
+      {% for t in toggles %}
+      <label class="switch">
+        <input type="checkbox" name="{{ t.key }}" {% if t.checked %}checked{% endif %}>
+        <span class="switch-ui" aria-hidden="true"></span>
+        <span class="switch-text"><strong>{{ t.title }}</strong><small>{{ t.hint }}</small></span>
+      </label>
+      {% endfor %}
+    </div>
+  </fieldset>
+
+  <button type="submit" class="new-chat submit-btn"><span class="btn-label">Save profile</span><span class="spinner" aria-hidden="true"></span></button>
+</form>
+
+<details class="group security" {% if pw_open %}open{% endif %}>
+  <summary><span class="emo" aria-hidden="true">🔑</span> {% if has_password %}Change password{% else %}Set a password{% endif %}</summary>
+  <form method="post" action="{% url 'accounts:password' %}" class="auth-form" novalidate data-auth-form>
+    {% csrf_token %}
+    {% if not has_password %}<p class="hint">You signed in with a provider, so there's no password yet. Set one if you also want to sign in with your email.</p>{% endif %}
+    {% if has_password %}
+    <div class="field">
+      <label for="id_current_password">Current password</label>
+      <input type="password" id="id_current_password" name="current_password" autocomplete="current-password">
+      {% for e in pw_form.current_password.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+    </div>
+    {% endif %}
+    <div class="field">
+      <label for="id_new_password1">New password</label>
+      <input type="password" id="id_new_password1" name="new_password1" autocomplete="new-password" minlength="8">
+      {% for e in pw_form.new_password1.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+    </div>
+    <div class="field">
+      <label for="id_new_password2">Confirm new password</label>
+      <input type="password" id="id_new_password2" name="new_password2" autocomplete="new-password">
+      {% for e in pw_form.new_password2.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+    </div>
+    <button type="submit" class="ghost-btn submit-btn"><span class="btn-label">Update password</span><span class="spinner" aria-hidden="true"></span></button>
+  </form>
+</details>
+{% endblock %}

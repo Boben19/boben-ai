@@ -1,20 +1,27 @@
 import json
+import re
 from pathlib import Path
 
 from django.conf import settings
+from django.contrib.auth.views import redirect_to_login
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 
-from .gemini import GeminiError, ask_gemini
+from accounts.personalization import build_profile_context, first_name_for_ai
+
+from .gemini import LENGTH_NOTES, MODE_NOTES, GeminiError, ask_gemini
 
 
 @ensure_csrf_cookie
 @require_GET
 def index(request):
-    """The chat page. ensure_csrf_cookie makes sure the browser gets a CSRF cookie."""
-    return render(request, "assistant/index.html")
+    """The chat page (signed-in users only). ensure_csrf_cookie makes sure the browser gets a CSRF cookie."""
+    if not request.user.is_authenticated:
+        return redirect_to_login(request.get_full_path())
+    return render(request, "assistant/index.html", {"profile": request.user.profile})
 
 
 @require_GET
@@ -43,10 +50,14 @@ def service_worker(request):
 def chat(request):
     """
     POST /api/chat/
-    Body: {"message": "...", "history": [{"role": "user"|"assistant", "text": "..."}]}
+    Body: {"message": "...", "history": [{"role": "user"|"assistant", "text": "..."}],
+           "mode": "chat|study|code|write|plan", "length": "short|balanced|detailed", "name": "..."}
     Returns: {"reply": "..."} or {"error": "..."}
-    CSRF is checked automatically by Django's middleware.
+    CSRF is checked automatically by Django's middleware. Signed-in users only (401 otherwise).
+    The user's saved profile is added to the prompt on the server, limited to what they allowed.
     """
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Your session ended. Please sign in again.", "login": "/accounts/login/"}, status=401)
     try:
         body = json.loads(request.body.decode("utf-8"))
     except (ValueError, UnicodeDecodeError):
@@ -58,7 +69,7 @@ def chat(request):
     # ---- validate the new message ----
     message = body.get("message")
     if not isinstance(message, str) or not message.strip():
-        return JsonResponse({"error": "Type a message first and I'll jump in."}, status=400)
+        return JsonResponse({"error": "Type a message first and I'll jump right in."}, status=400)
     message = message.strip()
     if len(message) > settings.MAX_PROMPT_CHARS:
         return JsonResponse(
@@ -91,8 +102,25 @@ def chat(request):
         while history and history[0]["role"] != "user":
             history.pop(0)
 
+    # ---- optional settings (checked against a fixed list, so nothing odd reaches the prompt) ----
+    mode = body.get("mode") if body.get("mode") in MODE_NOTES else "chat"
+    length = body.get("length") if body.get("length") in LENGTH_NOTES else "balanced"
+    name = body.get("name") if isinstance(body.get("name"), str) else ""
+    name = re.sub(r"[^\w\s'.-]", "", name).strip()[:30]
+
+    # ---- the saved profile decides what personal details the AI may see ----
+    profile = request.user.profile
+    if not (profile.personalize and profile.use_name):
+        name = ""                                        # the person turned name-use off
+    else:
+        name = first_name_for_ai(profile) or name        # saved name wins over the quick "first name" setting
+    profile_context = build_profile_context(profile)
+
     try:
-        reply = ask_gemini(settings.GEMINI_API_KEY, settings.GEMINI_MODELS, history, message)
+        reply = ask_gemini(
+            settings.GEMINI_API_KEY, settings.GEMINI_MODELS, history, message,
+            mode=mode, length=length, name=name, profile_context=profile_context,
+        )
     except GeminiError as err:
         return JsonResponse({"error": err.message}, status=err.status)
 

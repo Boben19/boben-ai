@@ -1,25 +1,39 @@
 {% load static %}<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Boben AI 🍀</title>
-  <meta name="description" content="Boben AI: your study buddy, idea partner, and everyday sidekick.">
+  <title>Boben</title>
+  <meta name="description" content="Boben: your study partner and everyday helper.">
+  <meta name="author" content="Jhon Grover Longsud">
+
+  <!-- Pick light or dark before the page paints, so there is no flash -->
+  <script>
+    try {
+      var p = JSON.parse(localStorage.getItem("boben-prefs-v1") || "{}");
+      var dark = p.theme === "dark" || (p.theme !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.dataset.theme = dark ? "dark" : "light";
+      document.documentElement.setAttribute("data-bs-theme", dark ? "dark" : "light");
+      document.documentElement.setAttribute("data-size", p.size || "medium");
+      document.documentElement.dataset.fun = p.fun === "off" ? "off" : "on";
+    } catch (e) {}
+  </script>
 
   <!-- PWA -->
   <link rel="manifest" href="{% url 'manifest' %}">
-  <meta name="theme-color" content="#5aa77f">
+  <meta name="theme-color" content="#eaf1ed" id="themeColor">
   <link rel="icon" type="image/png" href="{% static 'assistant/icons/favicon-64.png' %}">
   <link rel="apple-touch-icon" href="{% static 'assistant/icons/apple-touch-icon.png' %}">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Boben AI">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Boben">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-  <!-- Bootstrap (CDN) + our own styles -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="{% static 'assistant/css/style.css' %}">
 </head>
 <body>
-  <!-- Reusable clover mascot (used in several places with <use>) -->
+  <!-- Icon sprite: small line icons in the style of iOS symbols -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
     <symbol id="clover" viewBox="0 0 64 64">
       <g fill="#6cc491" stroke="#2f6b4f" stroke-width="2" stroke-linejoin="round">
@@ -29,127 +43,328 @@
         <path d="M30 32 C30 40 24 46 17 46 C11 46 8 41 10 37 C11 34 14 32 14 32 C14 32 11 30 10 27 C8 23 11 18 17 18 C24 18 30 24 30 32Z"/>
       </g>
       <circle cx="32" cy="32" r="9" fill="#fff8e7" stroke="#2f6b4f" stroke-width="2"/>
-      <circle cx="29" cy="31" r="1.4" fill="#2f6b4f"/>
-      <circle cx="35" cy="31" r="1.4" fill="#2f6b4f"/>
+      <circle cx="29" cy="31" r="1.4" fill="#2f6b4f"/><circle cx="35" cy="31" r="1.4" fill="#2f6b4f"/>
       <path d="M29 35 Q32 38 35 35" fill="none" stroke="#2f6b4f" stroke-width="1.6" stroke-linecap="round"/>
     </symbol>
+    <defs>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></symbol>
+      <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M19 7h1M4 17h1M11 17h9"/><circle cx="16" cy="7" r="2.2"/><circle cx="8" cy="17" r="2.2"/></symbol>
+      <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M5.5 11.5L12 5l6.5 6.5"/></symbol>
+      <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H16"/></symbol>
+      <symbol id="i-retry" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.4 5.7M20 4.5V11h-6.5"/></symbol>
+      <symbol id="i-speaker" viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6L8 10H4zM16.5 8.5a5 5 0 0 1 0 7"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></symbol>
+      <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3.5M7.5 8L12 3.5 16.5 8M5 12.5V19a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6.5"/></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+      <symbol id="i-wifi-off" viewBox="0 0 24 24"><path d="M3 3l18 18M8.6 16.3a5 5 0 0 1 6.8 0M4.8 12.6a10 10 0 0 1 3.4-2.1M12 20h.01M16.2 9.9a10 10 0 0 1 3 2.7"/></symbol>
+      <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4.5h11a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3V4.5zM5 17a3 3 0 0 1 3-3h11"/></symbol>
+      <symbol id="i-code" viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/></symbol>
+      <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20l4-1L19 8a2.1 2.1 0 0 0-3-3L5 16l-1 4z"/></symbol>
+      <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol>
+      <symbol id="i-chat" viewBox="0 0 24 24"><path d="M5 5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8l-5 4v-4H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></symbol>
+      <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.9L12 3.5z"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+      <symbol id="i-timer" viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7"/><path d="M12 10v4l2.5 1.5M9.5 3h5"/></symbol>
+      <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6.5" y="6.5" width="11" height="11" rx="2.5"/></symbol>
+      <symbol id="i-logout" viewBox="0 0 24 24"><path d="M10 4H6.5A2.5 2.5 0 0 0 4 6.5v11A2.5 2.5 0 0 0 6.5 20H10M15 8l4 4-4 4M19 12H9.5"/></symbol>
+      <symbol id="i-install" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 20h14"/></symbol>
+    </defs>
   </svg>
 
-  <!-- Floating emojis go here (added by app.js). Decoration only. -->
-  <div class="floaties" id="floaties" aria-hidden="true"></div>
+  <!-- Soft colour behind the glass -->
+  <div class="backdrop" aria-hidden="true"><i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i><i class="blob b4"></i></div>
 
   <a class="skip-link" href="#composer-input">Skip to message box</a>
 
-  <div class="app-shell">
+  <div class="app">
 
-    <!-- ===== Sidebar (fixed on desktop, slide-in menu on phones) ===== -->
-    <aside class="offcanvas-lg offcanvas-start sidebar" tabindex="-1" id="sidebar" aria-labelledby="sidebarTitle">
-      <div class="offcanvas-header d-lg-none">
-        <span class="visually-hidden" id="sidebarTitle">Boben AI menu</span>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Close menu"></button>
-      </div>
-      <div class="offcanvas-body flex-column sidebar-inner">
-        <div class="brand">
-          <svg class="mascot mascot-lg" role="img" aria-label="Boben, a friendly clover mascot"><use href="#clover"/></svg>
-          <h1 class="brand-name">Boben AI <span aria-hidden="true">🍀</span></h1>
-          <p class="tagline">Your study buddy, idea partner, and everyday sidekick.</p>
+    <!-- ===== Sidebar: fixed on desktop, slides in on phones ===== -->
+    <aside class="sidebar glass offcanvas-lg offcanvas-start" tabindex="-1" id="sidebar" aria-labelledby="sidebarTitle">
+      <div class="sidebar-in">
+        <div class="brand-row">
+          <span class="brand-mark"><svg class="clover" aria-hidden="true"><use href="#clover"/></svg></span>
+          <span class="brand-name" id="sidebarTitle">Boben</span>
+          <button type="button" class="icon-btn d-lg-none ms-auto" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Close menu">
+            <svg class="ic" aria-hidden="true"><use href="#i-x"/></svg>
+          </button>
         </div>
 
-        <section aria-labelledby="quickTitle" class="side-section">
-          <h2 class="side-title" id="quickTitle">Quick prompts</h2>
-          <div class="quick-list">
-            <button type="button" class="chip" data-prompt="Explain this simply: ">Explain this simply 📚</button>
-            <button type="button" class="chip" data-prompt="Help me code: ">Help me code 💻</button>
-            <button type="button" class="chip" data-prompt="Let's brainstorm ideas for: ">Let's brainstorm 💡</button>
-            <button type="button" class="chip" data-prompt="Help me organize these tasks: ">Organize my tasks 📝</button>
-            <button type="button" class="chip" data-prompt="Make this sound more natural: ">Make this sound natural ✍️</button>
+        <button type="button" class="new-chat" id="newChatBtn">
+          <svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg> New chat
+        </button>
+
+        <div class="search">
+          <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+          <label class="visually-hidden" for="searchInput">Search your chats</label>
+          <input type="search" id="searchInput" placeholder="Search chats" autocomplete="off">
+        </div>
+
+        <p class="side-heading" id="chatsHeading">Chats</p>
+        <nav class="chat-list" id="chatList" aria-labelledby="chatsHeading"></nav>
+
+        <div class="side-foot">
+          <button type="button" class="row-btn" id="savedBtn">
+            <svg class="ic" aria-hidden="true"><use href="#i-star"/></svg> Saved answers <span class="badge-count" id="savedCount" hidden>0</span>
+          </button>
+          <button type="button" class="row-btn" id="timerBtn">
+            <svg class="ic" aria-hidden="true"><use href="#i-timer"/></svg> Focus timer <span class="badge-count" id="timerBadge" hidden>25:00</span>
+          </button>
+          <button type="button" class="row-btn" id="installBtn" hidden>
+            <svg class="ic" aria-hidden="true"><use href="#i-install"/></svg> Install app
+          </button>
+          <button type="button" class="row-btn" id="settingsBtn">
+            <svg class="ic" aria-hidden="true"><use href="#i-sliders"/></svg> Settings
+          </button>
+          <div class="account-row">
+            <a class="account-link" href="{% url 'accounts:profile' %}" aria-label="Open your profile">
+              <span class="avatar" id="accountAvatar">
+                {% if profile.has_avatar %}<img src="{% url 'accounts:avatar' %}?v={{ profile.avatar_version }}" alt="">
+                {% elif profile.avatar_url %}<img src="{{ profile.avatar_url }}" alt="" referrerpolicy="no-referrer">
+                {% else %}{{ profile.shown_name|slice:":1"|upper }}{% endif %}
+              </span>
+              <span class="account-text"><strong>{{ profile.shown_name }}</strong><span>Edit profile</span></span>
+            </a>
+            <form method="post" action="{% url 'accounts:logout' %}" data-logout>
+              {% csrf_token %}
+              <button type="submit" class="icon-btn" aria-label="Sign out" title="Sign out">
+                <svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>
+              </button>
+            </form>
           </div>
-        </section>
-
-        <section aria-labelledby="ctrlTitle" class="side-section">
-          <h2 class="side-title" id="ctrlTitle">Chat controls</h2>
-          <button type="button" class="btn btn-soft w-100 mb-2" id="clearBtnSide">🧹 Clear chat</button>
-          <button type="button" class="btn btn-soft w-100 mb-2" id="installBtnSide" hidden>📲 Install app</button>
-        </section>
-
-        <p class="side-note mt-auto">
-          Boben AI can make mistakes, so double-check important stuff. 💚
-        </p>
+          <button type="button" class="credit" id="aboutBtn">Developed by <strong>Jhon Grover Longsud</strong></button>
+        </div>
       </div>
     </aside>
 
-    <!-- ===== Main column ===== -->
-    <div class="main-col">
+    <!-- ===== Main panel ===== -->
+    <div class="main glass">
+      <div class="emoji-bg" id="emojiBg" aria-hidden="true"></div>
       <header class="topbar">
-        <button class="btn btn-icon d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar"
-                aria-controls="sidebar" aria-label="Open menu">☰</button>
-        <svg class="mascot mascot-sm d-lg-none" aria-hidden="true"><use href="#clover"/></svg>
-        <div class="topbar-title">
-          <strong>Boben AI 🍀</strong>
-          <span class="d-none d-sm-inline text-muted-soft">Your study buddy</span>
-        </div>
-        <span class="status-pill online" id="statusPill" role="status" aria-live="polite">
-          <span class="dot" aria-hidden="true"></span><span id="statusText">Online</span>
+        <button class="icon-btn d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar" aria-label="Open chats">
+          <svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg>
+        </button>
+        <label class="visually-hidden" for="titleInput">Chat name</label>
+        <input class="title-input" id="titleInput" type="text" maxlength="60" value="New chat" autocomplete="off" spellcheck="false">
+        <span class="net-pill" id="netPill" hidden role="status">
+          <svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg> Offline
         </span>
-        <button type="button" class="btn btn-soft btn-sm d-none d-lg-inline-flex" id="installBtn" hidden>📲 Install</button>
-        <button type="button" class="btn btn-soft btn-sm" id="clearBtn" aria-label="Clear chat">🧹<span class="d-none d-sm-inline">&nbsp;Clear</span></button>
+        <button class="icon-btn" type="button" id="exportBtn" aria-label="Save this chat as a text file" title="Save chat">
+          <svg class="ic" aria-hidden="true"><use href="#i-share"/></svg>
+        </button>
+        <button class="icon-btn d-lg-none" type="button" id="newChatTop" aria-label="New chat" title="New chat">
+          <svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>
+        </button>
       </header>
 
-      <div class="offline-banner" id="offlineBanner" role="alert" hidden>
-        📡 You're offline. You can still read this chat, but Boben needs the internet to answer new questions.
+      <div class="notice" id="offlineBanner" role="alert" hidden>
+        <svg class="ic" aria-hidden="true"><use href="#i-wifi-off"/></svg>
+        <span>You're offline. You can still read your chats. New replies need a connection.</span>
       </div>
 
-      <main class="chat-wrap">
-        <div class="chat-log" id="chatLog" role="log" aria-live="polite" aria-relevant="additions" aria-label="Conversation with Boben AI">
+      <div class="chat-log" id="chatLog" role="log" aria-live="polite" aria-relevant="additions" aria-label="Conversation">
+        <div class="chat-inner" id="chatInner">
 
-          <!-- Home screen (hidden once the chat starts) -->
           <section class="welcome" id="welcome">
-            <svg class="mascot mascot-xl" aria-hidden="true"><use href="#clover"/></svg>
-            <div class="bubble bubble-ai welcome-bubble">
-              Hey there! 💚 I'm Boben AI. Need help with school, coding, ideas, or just figuring something out? Let's work on it together.
+            <span class="welcome-mark"><svg class="clover" aria-hidden="true"><use href="#clover"/></svg></span>
+            <h2 id="greetTitle">Hi there</h2>
+            <p class="welcome-sub">What are we working on? <span class="emo" aria-hidden="true">🍀</span></p>
+
+            <div class="mode-grid">
+              <button type="button" class="mode-card" data-mode="study" data-starter="Explain this simply: ">
+                <span class="emo" aria-hidden="true">📚</span>
+                <strong>Study</strong><span>Understand a topic step by step</span>
+              </button>
+              <button type="button" class="mode-card" data-mode="code" data-starter="Help me fix this code: ">
+                <span class="emo" aria-hidden="true">💻</span>
+                <strong>Code</strong><span>Debug, explain, or build something</span>
+              </button>
+              <button type="button" class="mode-card" data-mode="write" data-starter="Make this sound more natural: ">
+                <span class="emo" aria-hidden="true">✍️</span>
+                <strong>Write</strong><span>Draft, rewrite, or proofread</span>
+              </button>
+              <button type="button" class="mode-card" data-mode="plan" data-starter="Help me plan: ">
+                <span class="emo" aria-hidden="true">🗓️</span>
+                <strong>Plan</strong><span>Sort out tasks and deadlines</span>
+              </button>
             </div>
-            <p class="suggest-label">Try one of these:</p>
-            <div class="suggest-grid">
-              <button type="button" class="suggest-card" data-send="Can you explain photosynthesis in simple terms so I can write it in my notes?">
-                <span aria-hidden="true">🌱</span> Explain photosynthesis simply
-              </button>
-              <button type="button" class="suggest-card" data-send="What's the difference between a list and a tuple in Python? Show a tiny example.">
-                <span aria-hidden="true">🐍</span> Python list vs tuple
-              </button>
-              <button type="button" class="suggest-card" data-send="Help me make a realistic study plan for the week. I have 3 exams and a project.">
-                <span aria-hidden="true">📅</span> Plan my study week
-              </button>
-              <button type="button" class="suggest-card" data-send="Give me 5 fun project ideas for a Computer Science class.">
-                <span aria-hidden="true">💡</span> Project ideas for CS class
-              </button>
+
+            <div class="ask-list" aria-label="Quick questions">
+              <button type="button" class="ask" data-send="Can you explain photosynthesis in simple terms so I can write it in my notes?">Explain photosynthesis simply</button>
+              <button type="button" class="ask" data-send="What's the difference between a list and a tuple in Python? Show a tiny example.">Python list vs tuple</button>
+              <button type="button" class="ask" data-send="Help me make a realistic study plan for the week. I have 3 exams and a project.">Plan my study week</button>
             </div>
+            <p class="welcome-credit">Developed by Jhon Grover Longsud</p>
           </section>
 
         </div>
+      </div>
 
-        <!-- Composer -->
+      <div class="composer-wrap">
+        <div class="mode-row" id="modeRow" role="group" aria-label="What kind of help">
+          <button type="button" class="chip" data-mode="chat" aria-pressed="true"><span class="emo" aria-hidden="true">💬</span>Chat</button>
+          <button type="button" class="chip" data-mode="study" aria-pressed="false"><span class="emo" aria-hidden="true">📚</span>Study</button>
+          <button type="button" class="chip" data-mode="code" aria-pressed="false"><span class="emo" aria-hidden="true">💻</span>Code</button>
+          <button type="button" class="chip" data-mode="write" aria-pressed="false"><span class="emo" aria-hidden="true">✍️</span>Write</button>
+          <button type="button" class="chip" data-mode="plan" aria-pressed="false"><span class="emo" aria-hidden="true">🗓️</span>Plan</button>
+        </div>
+
         <form class="composer" id="composer" autocomplete="off">
-          <label for="composer-input" class="visually-hidden">Ask Boben AI a question</label>
-          <textarea id="composer-input" rows="1" maxlength="2000" placeholder="Ask Boben anything… (Enter to send, Shift+Enter for a new line)"></textarea>
-          <div class="composer-row">
-            <span class="counter" id="counter" aria-hidden="true">0 / 2000</span>
-            <button type="submit" class="btn btn-send" id="sendBtn">Send <span aria-hidden="true">➤</span></button>
-          </div>
+          <label for="composer-input" class="visually-hidden">Message</label>
+          <textarea id="composer-input" rows="1" maxlength="2000" placeholder="Message Boben"></textarea>
+          <button type="button" class="round-btn ghost" id="micBtn" aria-label="Dictate a message" title="Dictate" hidden>
+            <svg class="ic" aria-hidden="true"><use href="#i-mic"/></svg>
+          </button>
+          <button type="submit" class="round-btn send" id="sendBtn" aria-label="Send message" disabled>
+            <svg class="ic" aria-hidden="true"><use href="#i-up"/></svg>
+          </button>
         </form>
-
-        <footer class="footer-note">Made with 💚, a little humor, and lots of curiosity.</footer>
-      </main>
+        <p class="fine"><span class="counter" id="counter" hidden></span><span id="fineText">Boben can get things wrong. Double-check anything important.</span></p>
+      </div>
     </div>
   </div>
+
+  <!-- ===== Settings sheet ===== -->
+  <div class="modal fade sheet" id="settingsModal" tabindex="-1" aria-labelledby="settingsTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content glass">
+        <div class="sheet-head">
+          <h2 id="settingsTitle">Settings</h2>
+          <button type="button" class="icon-btn" data-bs-dismiss="modal" aria-label="Close settings"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+        </div>
+
+        <div class="field">
+          <span class="label">Your profile <span class="emo" aria-hidden="true">🌿</span></span>
+          <p class="hint">Name, picture, bio, interests and what Boben may use to personalize replies.</p>
+          <a class="ghost-btn d-inline-flex align-items-center text-decoration-none" href="{% url 'accounts:profile' %}">Edit profile</a>
+        </div>
+
+        <div class="field">
+          <span class="label" id="lblTheme">Appearance</span>
+          <div class="seg" role="group" aria-labelledby="lblTheme" data-setting="theme">
+            <button type="button" data-value="auto">Auto</button>
+            <button type="button" data-value="light">Light</button>
+            <button type="button" data-value="dark">Dark</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="label" id="lblLength">Reply length</span>
+          <div class="seg" role="group" aria-labelledby="lblLength" data-setting="length">
+            <button type="button" data-value="short">Short</button>
+            <button type="button" data-value="balanced">Balanced</button>
+            <button type="button" data-value="detailed">Detailed</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="label" id="lblSize">Text size</span>
+          <div class="seg" role="group" aria-labelledby="lblSize" data-setting="size">
+            <button type="button" data-value="small">Small</button>
+            <button type="button" data-value="medium">Medium</button>
+            <button type="button" data-value="large">Large</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="label" id="lblFun">Background emojis</span>
+          <div class="seg" role="group" aria-labelledby="lblFun" data-setting="fun">
+            <button type="button" data-value="on">On</button>
+            <button type="button" data-value="off">Off</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="label">Your chats</span>
+          <p class="hint">Chats are saved only on this device, for your account.</p>
+          <button type="button" class="danger-btn" id="clearAllBtn">Delete all chats</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Saved answers ===== -->
+  <div class="modal fade sheet" id="savedModal" tabindex="-1" aria-labelledby="savedTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content glass">
+        <div class="sheet-head">
+          <h2 id="savedTitle">Saved answers</h2>
+          <button type="button" class="icon-btn" data-bs-dismiss="modal" aria-label="Close saved answers"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+        </div>
+        <div class="saved-list" id="savedList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Focus timer ===== -->
+  <div class="modal fade sheet" id="timerModal" tabindex="-1" aria-labelledby="timerTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content glass">
+        <div class="sheet-head">
+          <h2 id="timerTitle">Focus timer</h2>
+          <button type="button" class="icon-btn" data-bs-dismiss="modal" aria-label="Close timer"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+        </div>
+        <div class="seg" id="timerModes" role="group" aria-label="Session type">
+          <button type="button" data-kind="focus" aria-pressed="true">Focus</button>
+          <button type="button" data-kind="short" aria-pressed="false">Short break</button>
+          <button type="button" data-kind="long" aria-pressed="false">Long break</button>
+        </div>
+        <div class="ring" role="timer" aria-live="off">
+          <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-bg" cx="60" cy="60" r="54"/><circle class="ring-fg" id="ringFg" cx="60" cy="60" r="54"/></svg>
+          <div class="ring-time" id="ringTime">25:00</div>
+        </div>
+        <div class="field">
+          <label for="goalInput">What are you working on?</label>
+          <input type="text" id="goalInput" maxlength="80" placeholder="For example: IT Audit reviewer" autocomplete="off">
+        </div>
+        <div class="timer-actions">
+          <button type="button" class="new-chat" id="timerStart">Start</button>
+          <button type="button" class="ghost-btn" id="timerReset">Reset</button>
+        </div>
+        <p class="hint mt-3 mb-0" id="timerSessions">Focus sessions today: 0</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== About ===== -->
+  <div class="modal fade sheet" id="aboutModal" tabindex="-1" aria-labelledby="aboutTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content glass">
+        <div class="sheet-head">
+          <h2 id="aboutTitle">About</h2>
+          <button type="button" class="icon-btn" data-bs-dismiss="modal" aria-label="Close about"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+        </div>
+        <div class="about">
+          <span class="welcome-mark"><svg class="clover" aria-hidden="true"><use href="#clover"/></svg></span>
+          <h3>Boben</h3>
+          <p class="hint">Version 2.0</p>
+          <p>Developed by <strong>Jhon Grover Longsud</strong></p>
+          <p class="hint">Built with Django, Bootstrap and Google Gemini. Your chats stay on this device.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Short emoji bursts (star, heart, timer). The drifting emojis live in the background, see .emoji-bg -->
+  <div class="fx" id="floaties" aria-hidden="true"></div>
+
+  <div class="toast-host" id="toastHost" aria-live="polite"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // Paths from Django, so the JavaScript never hard-codes them.
     window.BOBEN = {
       chatUrl: "{% url 'chat' %}",
-      swUrl: "{% url 'serviceworker' %}"
+      swUrl: "{% url 'serviceworker' %}",
+      loginUrl: "{% url 'accounts:login' %}",
+      userId: {{ request.user.id }},
+      name: "{{ profile.display_name|escapejs }}"
     };
   </script>
+  <script src="{% static 'assistant/js/emoji-bg.js' %}"></script>
+  <script src="{% static 'assistant/js/auth.js' %}"></script>
   <script src="{% static 'assistant/js/app.js' %}"></script>
 </body>
 </html>
