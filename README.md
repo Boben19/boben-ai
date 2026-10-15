@@ -42,6 +42,7 @@ boben_ai/
         └── icons/               <- PWA icons
 ```
 
+<<<<<<< HEAD
 ## Accounts, profile and personalization
 
 - **Sign-in is required** to use the chat and `/api/chat/` (this also keeps strangers from spending your Gemini quota). Pages: `/accounts/login/`, `/accounts/signup/`, `/accounts/profile/`.
@@ -53,11 +54,14 @@ boben_ai/
 - **Chats** are still stored in the browser, now kept separately for each account on a device. Chats saved before accounts existed move to the first account that signs in.
 - **Emojis** now drift softly inside the page background (under the text) and appear in headings and labels. Tap-to-pop and drag are gone because the emojis no longer sit on top. Star, heart and timer still play a short burst. Turn the background emojis off in Settings.
 
+=======
+>>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
 ## What the redesign added
 
 - **Look:** frosted-glass panels over a soft colour backdrop, iOS-style bubbles, rounded controls, safe-area support for iPhone notches, automatic light/dark mode.
 - **Multiple chats:** a sidebar list, rename by tapping the title, delete with Undo, and a new chat shortcut (Ctrl/Cmd + K, or long-press the app icon once installed).
 - **Modes:** Chat, Study, Code, Write, Plan. The mode is sent with each message and adds a short note to the personality (`MODE_NOTES` in `gemini.py`).
+<<<<<<< HEAD
 - **Settings sheet:** Auto/Light/Dark, reply length (Short/Balanced/Detailed), text size, and a link to your profile (your name now lives there).
 - **Reply tools:** copy, read aloud, write a new reply, copy button on code blocks, dictation (where the browser supports it), and save a chat as a .txt file.
 - **Background emojis:** soft emojis drift inside the page background, under the text, and appear in headings and labels. Turn them off in Settings. They stop moving if the device asks for reduced motion.
@@ -68,6 +72,10 @@ boben_ai/
 - **Focus timer:** Focus / Short break / Long break with a progress ring, a note on what you're working on, a count of today's sessions, and a sound plus emoji shower when time is up. It keeps running if you reload the page.
 - **Text size and love button:** Small / Medium / Large text, and a heart on each reply that sends hearts floating up.
 - **About:** tap "Developed by Jhon Grover Longsud" in the sidebar.
+=======
+- **Settings sheet:** first name (so replies feel personal), Auto/Light/Dark, and reply length (Short/Balanced/Detailed).
+- **Reply tools:** copy, read aloud, write a new reply, copy button on code blocks, dictation (where the browser supports it), and save a chat as a .txt file.
+>>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
 - **Offline:** the app still opens and old chats stay readable. An "Offline" pill and a banner appear, and the message stays in the box until you reconnect.
 - **Safety:** mode, length and name are checked on the server against a fixed list before they reach the prompt. The API key still never leaves the server.
 - **Voice of the app:** the interface and the personality never label themselves as "AI". If someone sincerely asks whether they are talking to a person or a program, Boben answers honestly.
@@ -170,8 +178,13 @@ Testing on a phone: the phone needs HTTPS to install the app (plain `http://192.
 ## Before deploying or sharing
 
 - Never commit `.env`. If a key ever leaks, delete it in Google AI Studio and make a new one.
+<<<<<<< HEAD
 - In production set `DJANGO_DEBUG=False`, a real `DJANGO_SECRET_KEY`, your domain in `DJANGO_ALLOWED_HOSTS`, `SITE_URL`, and `DJANGO_CSRF_TRUSTED_ORIGINS`. Serve static files with `collectstatic` and a server such as WhiteNoise, and use HTTPS.
 - Put `DATABASE_PATH` on storage that survives restarts, and back it up. It holds accounts, profiles and pictures.
 - If a client secret ever leaks, regenerate it in the provider's dashboard and update `.env`.
 - There is no email sending yet, so there is no "forgot password" and no email verification for email sign-ups. Adding an email backend is the next step for both.
 - Chat history is stored only in the user's own browser (localStorage), per account. "Delete all chats" in Settings removes it.
+=======
+- In production set `DJANGO_DEBUG=False`, a real `DJANGO_SECRET_KEY`, and your domain in `DJANGO_ALLOWED_HOSTS`. Serve static files with `collectstatic` and a server such as WhiteNoise, and use HTTPS.
+- Chat history is stored only in the user's own browser (localStorage). "Delete all chats" in Settings removes it.
+>>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673

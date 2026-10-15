@@ -57,7 +57,11 @@ html, body { height: 100%; }
 body {
   margin: 0;
   font-family: var(--font);
+<<<<<<< HEAD
   font-size: 1rem;
+=======
+  font-size: 16px;
+>>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
   line-height: 1.45;
   color: var(--text);
   background: var(--bg);
@@ -284,7 +288,11 @@ button { cursor: pointer; }
 .counter { margin-right: 8px; font-weight: 600; } .counter.warn { color: var(--danger); } .counter[hidden] { display: none; }
 
 /* ---------- 8) Settings sheet ---------- */
+<<<<<<< HEAD
 .sheet .modal-content { border-radius: 30px; padding: 20px; color: var(--text); background: var(--sheet); max-height: calc(100dvh - 2rem); overflow-y: auto; }
+=======
+.sheet .modal-content { border-radius: 30px; padding: 20px; color: var(--text); background: var(--sheet); }
+>>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
 .sheet .modal-dialog { max-width: 440px; }
 .sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .sheet-head h2 { margin: 0; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; }

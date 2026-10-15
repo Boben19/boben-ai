@@ -4,12 +4,19 @@
  * - Pages:   try the network first (fresh), fall back to the cached copy when offline.
  * - Static:  use the cache first (fast), update it quietly in the background.
  * - /api/:   NEVER cached. New replies always need the internet.
+<<<<<<< HEAD
  * - /accounts/ (sign-in, profile, OAuth): NEVER cached, and a redirect to the sign-in page is never
  *   stored as the home page. Signing out also deletes this cache (see auth.js).
  *
  * Bump CACHE_VERSION whenever you change cached files so old caches get deleted.
  */
 const CACHE_VERSION = "v4";
+=======
+ *
+ * Bump CACHE_VERSION whenever you change cached files so old caches get deleted.
+ */
+const CACHE_VERSION = "v2";
+>>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
 const CACHE_NAME = "boben-" + CACHE_VERSION;
 
 // These paths must match STATIC_URL ("/static/") in config/settings.py.

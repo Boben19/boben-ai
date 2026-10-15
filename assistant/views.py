@@ -10,8 +10,11 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 
+<<<<<<< HEAD
 from accounts.personalization import build_profile_context, first_name_for_ai
 
+=======
+>>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
 from .gemini import LENGTH_NOTES, MODE_NOTES, GeminiError, ask_gemini
 
 
@@ -108,6 +111,7 @@ def chat(request):
     name = body.get("name") if isinstance(body.get("name"), str) else ""
     name = re.sub(r"[^\w\s'.-]", "", name).strip()[:30]
 
+<<<<<<< HEAD
     # ---- the saved profile decides what personal details the AI may see ----
     profile = request.user.profile
     if not (profile.personalize and profile.use_name):
@@ -120,6 +124,12 @@ def chat(request):
         reply = ask_gemini(
             settings.GEMINI_API_KEY, settings.GEMINI_MODELS, history, message,
             mode=mode, length=length, name=name, profile_context=profile_context,
+=======
+    try:
+        reply = ask_gemini(
+            settings.GEMINI_API_KEY, settings.GEMINI_MODELS, history, message,
+            mode=mode, length=length, name=name,
+>>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
         )
     except GeminiError as err:
         return JsonResponse({"error": err.message}, status=err.status)

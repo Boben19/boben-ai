@@ -1,6 +1,9 @@
 """
 Django settings for Boben.
+<<<<<<< HEAD
 Developed by Jhon Grover Longsud.
+=======
+>>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
 
 Accounts, sessions and OAuth (Google, GitHub, Facebook) live in the "accounts" app.
 Secrets (Gemini key, Django secret key, OAuth client secrets) are read from the

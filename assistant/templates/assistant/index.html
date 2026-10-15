@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Boben</title>
   <meta name="description" content="Boben: your study partner and everyday helper.">
+<<<<<<< HEAD
   <meta name="author" content="Jhon Grover Longsud">
+=======
+>>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
 
   <!-- Pick light or dark before the page paints, so there is no flash -->
   <script>
@@ -14,8 +17,11 @@
       var dark = p.theme === "dark" || (p.theme !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
       document.documentElement.dataset.theme = dark ? "dark" : "light";
       document.documentElement.setAttribute("data-bs-theme", dark ? "dark" : "light");
+<<<<<<< HEAD
       document.documentElement.setAttribute("data-size", p.size || "medium");
       document.documentElement.dataset.fun = p.fun === "off" ? "off" : "on";
+=======
+>>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
     } catch (e) {}
   </script>
 
@@ -65,11 +71,14 @@
       <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20l4-1L19 8a2.1 2.1 0 0 0-3-3L5 16l-1 4z"/></symbol>
       <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol>
       <symbol id="i-chat" viewBox="0 0 24 24"><path d="M5 5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8l-5 4v-4H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></symbol>
+<<<<<<< HEAD
       <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.9L12 3.5z"/></symbol>
       <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
       <symbol id="i-timer" viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7"/><path d="M12 10v4l2.5 1.5M9.5 3h5"/></symbol>
       <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6.5" y="6.5" width="11" height="11" rx="2.5"/></symbol>
       <symbol id="i-logout" viewBox="0 0 24 24"><path d="M10 4H6.5A2.5 2.5 0 0 0 4 6.5v11A2.5 2.5 0 0 0 6.5 20H10M15 8l4 4-4 4M19 12H9.5"/></symbol>
+=======
+>>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
       <symbol id="i-install" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 20h14"/></symbol>
     </defs>
   </svg>
@@ -96,28 +105,35 @@
           <svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg> New chat
         </button>
 
+<<<<<<< HEAD
         <div class="search">
           <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
           <label class="visually-hidden" for="searchInput">Search your chats</label>
           <input type="search" id="searchInput" placeholder="Search chats" autocomplete="off">
         </div>
 
+=======
+>>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
         <p class="side-heading" id="chatsHeading">Chats</p>
         <nav class="chat-list" id="chatList" aria-labelledby="chatsHeading"></nav>
 
         <div class="side-foot">
+<<<<<<< HEAD
           <button type="button" class="row-btn" id="savedBtn">
             <svg class="ic" aria-hidden="true"><use href="#i-star"/></svg> Saved answers <span class="badge-count" id="savedCount" hidden>0</span>
           </button>
           <button type="button" class="row-btn" id="timerBtn">
             <svg class="ic" aria-hidden="true"><use href="#i-timer"/></svg> Focus timer <span class="badge-count" id="timerBadge" hidden>25:00</span>
           </button>
+=======
+>>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
           <button type="button" class="row-btn" id="installBtn" hidden>
             <svg class="ic" aria-hidden="true"><use href="#i-install"/></svg> Install app
           </button>
           <button type="button" class="row-btn" id="settingsBtn">
             <svg class="ic" aria-hidden="true"><use href="#i-sliders"/></svg> Settings
           </button>
+<<<<<<< HEAD
           <div class="account-row">
             <a class="account-link" href="{% url 'accounts:profile' %}" aria-label="Open your profile">
               <span class="avatar" id="accountAvatar">
@@ -135,13 +151,18 @@
             </form>
           </div>
           <button type="button" class="credit" id="aboutBtn">Developed by <strong>Jhon Grover Longsud</strong></button>
+=======
+>>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
         </div>
       </div>
     </aside>
 
     <!-- ===== Main panel ===== -->
     <div class="main glass">
+<<<<<<< HEAD
       <div class="emoji-bg" id="emojiBg" aria-hidden="true"></div>
+=======
+>>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
       <header class="topbar">
         <button class="icon-btn d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar" aria-label="Open chats">
           <svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg>
@@ -170,6 +191,7 @@
           <section class="welcome" id="welcome">
             <span class="welcome-mark"><svg class="clover" aria-hidden="true"><use href="#clover"/></svg></span>
             <h2 id="greetTitle">Hi there</h2>
+<<<<<<< HEAD
             <p class="welcome-sub">What are we working on? <span class="emo" aria-hidden="true">🍀</span></p>
 
             <div class="mode-grid">
@@ -189,6 +211,33 @@
                 <span class="emo" aria-hidden="true">🗓️</span>
                 <strong>Plan</strong><span>Sort out tasks and deadlines</span>
               </button>
+=======
+            <p class="welcome-sub">What are we working on?</p>
+
+            <div class="mode-grid">
+              <button type="button" class="mode-card" data-mode="study" data-starter="Explain this simply: ">
+                <svg class="ic" aria-hidden="true"><use href="#i-book"/></svg>
+                <strong>Study</strong><span>Understand a topic step by step</span>
+              </button>
+              <button type="button" class="mode-card" data-mode="code" data-starter="Help me fix this code: ">
+                <svg class="ic" aria-hidden="true"><use href="#i-code"/></svg>
+                <strong>Code</strong><span>Debug, explain, or build something</span>
+              </button>
+              <button type="button" class="mode-card" data-mode="write" data-starter="Make this sound more natural: ">
+                <svg class="ic" aria-hidden="true"><use href="#i-pen"/></svg>
+                <strong>Write</strong><span>Draft, rewrite, or proofread</span>
+              </button>
+              <button type="button" class="mode-card" data-mode="plan" data-starter="Help me plan: ">
+                <svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg>
+                <strong>Plan</strong><span>Sort out tasks and deadlines</span>
+              </button>
+            </div>
+
+            <div class="ask-list" aria-label="Quick questions">
+              <button type="button" class="ask" data-send="Can you explain photosynthesis in simple terms so I can write it in my notes?">Explain photosynthesis simply</button>
+              <button type="button" class="ask" data-send="What's the difference between a list and a tuple in Python? Show a tiny example.">Python list vs tuple</button>
+              <button type="button" class="ask" data-send="Help me make a realistic study plan for the week. I have 3 exams and a project.">Plan my study week</button>
+>>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
             </div>
 
             <div class="ask-list" aria-label="Quick questions">
@@ -204,11 +253,19 @@
 
       <div class="composer-wrap">
         <div class="mode-row" id="modeRow" role="group" aria-label="What kind of help">
+<<<<<<< HEAD
           <button type="button" class="chip" data-mode="chat" aria-pressed="true"><span class="emo" aria-hidden="true">💬</span>Chat</button>
           <button type="button" class="chip" data-mode="study" aria-pressed="false"><span class="emo" aria-hidden="true">📚</span>Study</button>
           <button type="button" class="chip" data-mode="code" aria-pressed="false"><span class="emo" aria-hidden="true">💻</span>Code</button>
           <button type="button" class="chip" data-mode="write" aria-pressed="false"><span class="emo" aria-hidden="true">✍️</span>Write</button>
           <button type="button" class="chip" data-mode="plan" aria-pressed="false"><span class="emo" aria-hidden="true">🗓️</span>Plan</button>
+=======
+          <button type="button" class="chip" data-mode="chat" aria-pressed="true">Chat</button>
+          <button type="button" class="chip" data-mode="study" aria-pressed="false">Study</button>
+          <button type="button" class="chip" data-mode="code" aria-pressed="false">Code</button>
+          <button type="button" class="chip" data-mode="write" aria-pressed="false">Write</button>
+          <button type="button" class="chip" data-mode="plan" aria-pressed="false">Plan</button>
+>>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
         </div>
 
         <form class="composer" id="composer" autocomplete="off">
@@ -236,9 +293,14 @@
         </div>
 
         <div class="field">
+<<<<<<< HEAD
           <span class="label">Your profile <span class="emo" aria-hidden="true">🌿</span></span>
           <p class="hint">Name, picture, bio, interests and what Boben may use to personalize replies.</p>
           <a class="ghost-btn d-inline-flex align-items-center text-decoration-none" href="{% url 'accounts:profile' %}">Edit profile</a>
+=======
+          <label for="nameInput">Your first name</label>
+          <input type="text" id="nameInput" maxlength="30" placeholder="Optional" autocomplete="given-name">
+>>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
         </div>
 
         <div class="field">
@@ -260,6 +322,7 @@
         </div>
 
         <div class="field">
+<<<<<<< HEAD
           <span class="label" id="lblSize">Text size</span>
           <div class="seg" role="group" aria-labelledby="lblSize" data-setting="size">
             <button type="button" data-value="small">Small</button>
@@ -279,12 +342,17 @@
         <div class="field">
           <span class="label">Your chats</span>
           <p class="hint">Chats are saved only on this device, for your account.</p>
+=======
+          <span class="label">Your chats</span>
+          <p class="hint">Chats are saved only on this device.</p>
+>>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
           <button type="button" class="danger-btn" id="clearAllBtn">Delete all chats</button>
         </div>
       </div>
     </div>
   </div>
 
+<<<<<<< HEAD
   <!-- ===== Saved answers ===== -->
   <div class="modal fade sheet" id="savedModal" tabindex="-1" aria-labelledby="savedTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -350,6 +418,8 @@
   <!-- Short emoji bursts (star, heart, timer). The drifting emojis live in the background, see .emoji-bg -->
   <div class="fx" id="floaties" aria-hidden="true"></div>
 
+=======
+>>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
   <div class="toast-host" id="toastHost" aria-live="polite"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
