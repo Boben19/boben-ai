@@ -9,13 +9,9 @@ from django.shortcuts import redirect, render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
-
-<<<<<<< HEAD
 from accounts.personalization import build_profile_context, first_name_for_ai
 
-=======
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
-from .gemini import LENGTH_NOTES, MODE_NOTES, GeminiError, ask_gemini
+
 
 
 @ensure_csrf_cookie
@@ -54,7 +50,7 @@ def chat(request):
     """
     POST /api/chat/
     Body: {"message": "...", "history": [{"role": "user"|"assistant", "text": "..."}],
-           "mode": "chat|study|code|write|plan", "length": "short|balanced|detailed", "name": "..."}
+            "mode": "chat|study|code|write|plan", "length": "short|balanced|detailed", "name": "..."}
     Returns: {"reply": "..."} or {"error": "..."}
     CSRF is checked automatically by Django's middleware. Signed-in users only (401 otherwise).
     The user's saved profile is added to the prompt on the server, limited to what they allowed.
@@ -111,11 +107,10 @@ def chat(request):
     name = body.get("name") if isinstance(body.get("name"), str) else ""
     name = re.sub(r"[^\w\s'.-]", "", name).strip()[:30]
 
-<<<<<<< HEAD
     # ---- the saved profile decides what personal details the AI may see ----
     profile = request.user.profile
     if not (profile.personalize and profile.use_name):
-        name = ""                                        # the person turned name-use off
+        name = ""                                   # the person turned name-use off
     else:
         name = first_name_for_ai(profile) or name        # saved name wins over the quick "first name" setting
     profile_context = build_profile_context(profile)
@@ -124,12 +119,6 @@ def chat(request):
         reply = ask_gemini(
             settings.GEMINI_API_KEY, settings.GEMINI_MODELS, history, message,
             mode=mode, length=length, name=name, profile_context=profile_context,
-=======
-    try:
-        reply = ask_gemini(
-            settings.GEMINI_API_KEY, settings.GEMINI_MODELS, history, message,
-            mode=mode, length=length, name=name,
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
         )
     except GeminiError as err:
         return JsonResponse({"error": err.message}, status=err.status)
