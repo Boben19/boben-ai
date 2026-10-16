@@ -58,6 +58,21 @@ def is_configured(provider):
     return provider in PROVIDERS and bool(cid and secret)
 
 
+ENV_NAMES = {
+    "google": ("GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"),
+    "github": ("GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET"),
+    "facebook": ("FACEBOOK_APP_ID", "FACEBOOK_APP_SECRET"),
+}
+
+
+def missing_settings(provider):
+    """Names of the environment variables that are still empty for this provider (for the setup hint)."""
+    cid, secret = credentials(provider)
+    id_name, secret_name = ENV_NAMES[provider]
+    missing = [name for name, value in ((id_name, cid), (secret_name, secret)) if not value]
+    return " and ".join(missing) or "its keys"
+
+
 def make_pkce():
     """Returns (verifier, challenge) for the S256 method."""
     verifier = secrets.token_urlsafe(64)

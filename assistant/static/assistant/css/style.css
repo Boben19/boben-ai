@@ -57,11 +57,7 @@ html, body { height: 100%; }
 body {
   margin: 0;
   font-family: var(--font);
-<<<<<<< HEAD
   font-size: 1rem;
-=======
-  font-size: 16px;
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
   line-height: 1.45;
   color: var(--text);
   background: var(--bg);
@@ -86,8 +82,9 @@ button { cursor: pointer; }
 /* ---------- 3) Glass + buttons ---------- */
 .glass {
   background: var(--glass);
-  -webkit-backdrop-filter: blur(32px) saturate(180%);
-  backdrop-filter: blur(32px) saturate(180%);
+  /* A light blur on purpose: the wiggling background emojis should show through the glass as soft shapes. */
+  -webkit-backdrop-filter: blur(3px) saturate(180%);
+  backdrop-filter: blur(3px) saturate(180%);
   border: 1px solid var(--glass-edge);
   box-shadow: var(--shadow);
 }
@@ -288,11 +285,7 @@ button { cursor: pointer; }
 .counter { margin-right: 8px; font-weight: 600; } .counter.warn { color: var(--danger); } .counter[hidden] { display: none; }
 
 /* ---------- 8) Settings sheet ---------- */
-<<<<<<< HEAD
 .sheet .modal-content { border-radius: 30px; padding: 20px; color: var(--text); background: var(--sheet); max-height: calc(100dvh - 2rem); overflow-y: auto; }
-=======
-.sheet .modal-content { border-radius: 30px; padding: 20px; color: var(--text); background: var(--sheet); }
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
 .sheet .modal-dialog { max-width: 440px; }
 .sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .sheet-head h2 { margin: 0; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; }
@@ -379,23 +372,37 @@ button { cursor: pointer; }
 .about h3 { margin: 0; font-weight: 750; letter-spacing: -0.02em; }
 .about p { margin: 6px 0; }
 
-/* Emojis that live inside the background (under the text, never on top of it) */
-.main { position: relative; }
-.main > *:not(.emoji-bg) { position: relative; z-index: 1; }
-.emoji-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
-.auth-body .emoji-bg { position: fixed; }
+/* Emojis that wiggle about in the page background, behind the glass panels (see emoji-bg.js).
+   The outer span is nudged away from the mouse pointer (--px/--py), the inner one does the
+   wiggling, so the two never fight over transform. */
+.emoji-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
 :root[data-fun="off"] .emoji-bg { display: none; }
 .emo-bit {
-  position: absolute; line-height: 1; opacity: var(--emo-o, 0.2); user-select: none;
-  filter: saturate(0.9); will-change: transform;
-  animation: emo-drift var(--emo-d, 26s) ease-in-out var(--emo-delay, 0s) infinite alternate;
+  position: absolute; left: var(--x); top: var(--y);
+  font-size: var(--s, 2.6rem); line-height: 1;
+  opacity: var(--emoji-op, 0.5);
+  transform: translate3d(var(--px, 0px), var(--py, 0px), 0);
+  transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform; user-select: none;
 }
-:root[data-theme="dark"] .emo-bit { --emo-o: 0.16; }
-@keyframes emo-drift {
-  from { transform: translate3d(0, 0, 0) rotate(var(--emo-r0, -8deg)); }
-  to   { transform: translate3d(var(--emo-x, 18px), var(--emo-y, -26px), 0) rotate(var(--emo-r1, 10deg)); }
+.emo-bit > span {
+  display: block; transform-origin: 50% 85%;
+  animation: wiggle var(--t, 10s) ease-in-out var(--d, 0s) infinite;
 }
-@media (prefers-reduced-motion: reduce) { .emo-bit { animation: none !important; } }
+:root[data-theme="dark"] .emo-bit { --emoji-op: 0.34; }
+@keyframes wiggle {
+  0%, 100% { transform: translate(0, 0) rotate(-8deg); }
+  18% { transform: translate(10px, -16px) rotate(9deg); }
+  36% { transform: translate(-6px, -30px) rotate(-6deg); }
+  54% { transform: translate(14px, -14px) rotate(8deg); }
+  72% { transform: translate(-10px, -24px) rotate(-9deg); }
+  88% { transform: translate(4px, -6px) rotate(5deg); }
+}
+@media (max-width: 700px) {
+  .emo-bit { font-size: calc(var(--s, 2.6rem) * 0.8); }
+  .emo-bit:nth-child(n+9) { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .emo-bit > span { animation: none !important; } .emo-bit { transition: none; } }
 
 /* Emojis written into headings and labels */
 .emo { display: inline-block; font-style: normal; margin-inline: 0.15em; }

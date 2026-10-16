@@ -101,7 +101,10 @@ def oauth_start(request, provider):
     if provider not in oauth.PROVIDERS:
         raise Http404
     if not oauth.is_configured(provider):
-        messages.error(request, "%s sign-in isn't set up yet." % oauth.label(provider))
+        msg = "%s sign-in isn't set up yet." % oauth.label(provider)
+        if settings.DEBUG:
+            msg += " Add %s to your .env file and restart the server (see README)." % oauth.missing_settings(provider)
+        messages.error(request, msg)
         return redirect("accounts:login")
     state = secrets.token_urlsafe(32)
     verifier = challenge = None

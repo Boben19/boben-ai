@@ -12,14 +12,10 @@
   const titleInput = $("titleInput"), chatList = $("chatList");
 
   const MAX_CHARS = 2000, HISTORY_SENT = 12, MAX_CHATS = 30, MAX_MSGS = 80;
-<<<<<<< HEAD
   // Chats and saved answers are kept per account, so two people on one device never see each other's chats.
   const UID = String((window.BOBEN && window.BOBEN.userId) || "guest");
   const LEGACY_STORE_KEY = "boben-chats-v2", LEGACY_SAVED_KEY = "boben-saved-v1";
   const STORE_KEY = LEGACY_STORE_KEY + ":" + UID, PREFS_KEY = "boben-prefs-v1", OLD_KEY = "boben-chat-v1";
-=======
-  const STORE_KEY = "boben-chats-v2", PREFS_KEY = "boben-prefs-v1", OLD_KEY = "boben-chat-v1";
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
   const PLACEHOLDERS = {
     chat: "Message Boben",
     study: "What are you studying?",
@@ -28,11 +24,7 @@
     plan: "What do you need to get done?",
   };
 
-<<<<<<< HEAD
   let busy = false, abortCtl = null, searchTerm = "";
-=======
-  let busy = false;
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
 
   // ======================================================================
   // 1) Setup + storage (everything stays in this browser)
@@ -45,7 +37,6 @@
   }
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
-<<<<<<< HEAD
   // First sign-in after this update: the account takes over the chats that were saved before accounts existed.
   try {
     [[LEGACY_STORE_KEY, STORE_KEY], [LEGACY_SAVED_KEY, LEGACY_SAVED_KEY + ":" + UID]].forEach(function (pair) {
@@ -82,34 +73,6 @@
   }
   const current = () => store.chats.find((c) => c.id === store.currentId);
 
-=======
-  let prefs = Object.assign({ name: "", theme: "auto", length: "balanced", mode: "chat" }, read(PREFS_KEY, {}));
-  let store = loadStore();
-
-  function loadStore() {
-    const saved = read(STORE_KEY, null);
-    if (saved && Array.isArray(saved.chats)) return saved;
-    // First run after the redesign: bring over the old single conversation, if there was one.
-    const old = read(OLD_KEY, []);
-    const chats = [];
-    if (Array.isArray(old) && old.length) {
-      const firstUser = old.find((m) => m.role === "user");
-      chats.push({ id: uid(), title: shorten(firstUser ? firstUser.text : "Earlier chat"), updated: Date.now(), messages: old });
-    }
-    return { chats: chats, currentId: chats.length ? chats[0].id : null };
-  }
-  function saveStore() {
-    store.chats = store.chats.filter((c) => c.messages.length || c.id === store.currentId).slice(0, MAX_CHATS);
-    store.chats.forEach((c) => { c.messages = c.messages.slice(-MAX_MSGS); });
-    write(STORE_KEY, store);
-  }
-  function shorten(text) {
-    const t = (text || "").replace(/\s+/g, " ").trim();
-    return t.length > 40 ? t.slice(0, 40).trim() + "…" : t || "New chat";
-  }
-  const current = () => store.chats.find((c) => c.id === store.currentId);
-
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
   function newChat() {
     const empty = store.chats.find((c) => !c.messages.length);   // reuse an empty chat instead of piling them up
     if (empty) { store.currentId = empty.id; } else {
@@ -137,25 +100,12 @@
       const key = seg.dataset.setting;
       seg.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(prefs[key] === b.dataset.value)));
     });
-<<<<<<< HEAD
-=======
-    $("nameInput").value = prefs.name;
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
   }
   document.querySelectorAll(".seg button").forEach((b) =>
     b.addEventListener("click", () => {
       prefs[b.closest(".seg").dataset.setting] = b.dataset.value;
-<<<<<<< HEAD
       write(PREFS_KEY, prefs); applyTheme(); applySize(); applyFun(); syncSegments();
     }));
-=======
-      write(PREFS_KEY, prefs); applyTheme(); syncSegments();
-    }));
-  $("nameInput").addEventListener("input", (e) => {
-    prefs.name = e.target.value.replace(/[^\p{L}\p{N}\s'.-]/gu, "").slice(0, 30);
-    write(PREFS_KEY, prefs); renderGreeting();
-  });
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
   $("settingsBtn").addEventListener("click", () => {
     closeSidebar();
     window.bootstrap.Modal.getOrCreateInstance($("settingsModal")).show();
@@ -245,7 +195,6 @@
 
   function renderList() {
     chatList.replaceChildren();
-<<<<<<< HEAD
     const chats = store.chats
       .filter((c) => c.messages.length && (!searchTerm || c.title.toLowerCase().includes(searchTerm) ||
                      c.messages.some((m) => m.text.toLowerCase().includes(searchTerm))))
@@ -253,12 +202,6 @@
     if (!chats.length) {
       const p = document.createElement("p");
       p.className = "chat-empty"; p.textContent = searchTerm ? "No chats match that." : "Your chats will show up here.";
-=======
-    const chats = store.chats.filter((c) => c.messages.length).sort((a, b) => b.updated - a.updated);
-    if (!chats.length) {
-      const p = document.createElement("p");
-      p.className = "chat-empty"; p.textContent = "Your chats will show up here.";
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
       chatList.appendChild(p);
       return;
     }
@@ -326,10 +269,7 @@
   function addMessage(m) {
     welcome.hidden = true;
     const isUser = m.role === "user";
-<<<<<<< HEAD
     if (!isUser && !m.error && !m.id) m.id = uid();
-=======
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
     const wrap = document.createElement("div");
     wrap.className = "msg " + (isUser ? "user" : "ai") + (m.error ? " error" : "");
 
@@ -360,7 +300,6 @@
       const copy = actBtn("Copy reply", "i-copy", "Copy");
       copy.addEventListener("click", () => copyText(m.text, () => toast("Copied")));
       actions.appendChild(copy);
-<<<<<<< HEAD
 
       const star = actBtn(isSaved(m.id) ? "Remove from saved" : "Save this answer", "i-star", "");
       star.classList.toggle("on", isSaved(m.id));
@@ -383,8 +322,6 @@
         if (m.liked) { const r = heart.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, ["❤️", "💚", "✨"], 9, 70); }
       });
       actions.appendChild(heart);
-=======
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
       if ("speechSynthesis" in window) {
         const say = actBtn("Read aloud", "i-speaker", "");
         say.addEventListener("click", () => speak(m.text));
@@ -406,10 +343,7 @@
     chatInner.querySelectorAll(".msg.is-last").forEach((el) => el.classList.remove("is-last"));
     const all = chatInner.querySelectorAll(".msg.ai:not(.error):not(#typingRow)");
     if (all.length) all[all.length - 1].classList.add("is-last");
-<<<<<<< HEAD
     refreshFollowups();
-=======
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
   }
 
   function copyText(text, done) {
@@ -448,17 +382,10 @@
   function greeting() {
     const h = new Date().getHours();
     const part = h < 5 ? "Up late" : h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-<<<<<<< HEAD
     const first = ((window.BOBEN && window.BOBEN.name) || prefs.name || "").trim().split(/\s+/)[0];
     return first ? part + ", " + first : part;
   }
   const renderGreeting = () => { $("greetTitle").textContent = greeting() + " \u{1F44B}"; };
-=======
-    const first = prefs.name.trim().split(/\s+/)[0];
-    return first ? part + ", " + first : part;
-  }
-  const renderGreeting = () => { $("greetTitle").textContent = greeting(); };
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
 
   function renderChat() {
     chatInner.querySelectorAll(".msg").forEach((el) => el.remove());
@@ -499,22 +426,15 @@
 
     const history = chat.messages.slice(-1 - HISTORY_SENT, -1).map((m) => ({ role: m.role, text: m.text }));
     setBusy(true); showTyping();
-<<<<<<< HEAD
     abortCtl = new AbortController();
-=======
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
 
     try {
       const res = await fetch(window.BOBEN.chatUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken") },
         credentials: "same-origin",
-<<<<<<< HEAD
         signal: abortCtl.signal,
         body: JSON.stringify({ message: last.text, history: history, mode: prefs.mode, length: prefs.length }),
-=======
-        body: JSON.stringify({ message: last.text, history: history, mode: prefs.mode, length: prefs.length, name: prefs.name }),
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
       });
       let data = {};
       try { data = await res.json(); } catch (e) { /* not JSON */ }
@@ -524,12 +444,9 @@
         const reply = { role: "assistant", text: data.reply, time: new Date().toISOString() };
         chat.messages.push(reply); chat.updated = Date.now();
         addMessage(reply); saveStore(); renderList();
-<<<<<<< HEAD
       } else if (res.status === 401) {
         addMessage({ role: "assistant", error: true, text: "Your session ended. Please sign in again to keep chatting." });
         toast("Session ended", { label: "Sign in", run: () => { location.href = window.BOBEN.loginUrl + "?next=/"; } });
-=======
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
       } else if (res.status === 403) {
         addMessage({ role: "assistant", error: true, retry: true, text: "Your session expired. Refresh the page, then try again." });
       } else {
@@ -537,19 +454,12 @@
       }
     } catch (err) {
       hideTyping();
-<<<<<<< HEAD
       if (err && err.name === "AbortError") { toast("Stopped", { label: "Retry", run: respond }); return; }
-=======
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
       addMessage({ role: "assistant", error: true, retry: true, text: navigator.onLine
         ? "I couldn't reach the server. Is it running?"
         : "You went offline. Reconnect, then try again." });
     } finally {
-<<<<<<< HEAD
       setBusy(false); refreshFollowups();
-=======
-      setBusy(false);
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
       if (matchMedia("(pointer: fine)").matches) input.focus();   // on phones, don't pop the keyboard back up
     }
   }
@@ -597,7 +507,6 @@
     counter.classList.toggle("warn", n > MAX_CHARS * 0.95);
     updateSend();
   }
-<<<<<<< HEAD
   let sendShowsStop = null;
   function updateSend() {
     sendBtn.disabled = !busy && !input.value.trim();
@@ -607,9 +516,6 @@
     sendBtn.setAttribute("aria-label", busy ? "Stop replying" : "Send message");
     sendBtn.innerHTML = '<svg class="ic" aria-hidden="true"><use href="#' + (busy ? "i-stop" : "i-up") + '"/></svg>';
   }
-=======
-  function updateSend() { sendBtn.disabled = busy || !input.value.trim(); }
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
 
   function setMode(mode) {
     prefs.mode = PLACEHOLDERS[mode] ? mode : "chat";
@@ -619,15 +525,11 @@
   }
   document.querySelectorAll("#modeRow .chip").forEach((c) => c.addEventListener("click", () => { setMode(c.dataset.mode); input.focus(); }));
 
-<<<<<<< HEAD
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     if (busy) { if (abortCtl) abortCtl.abort(); return; }     // the send button turns into a stop button
     sendMessage(input.value);
   });
-=======
-  form.addEventListener("submit", (e) => { e.preventDefault(); sendMessage(input.value); });
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); sendMessage(input.value); }
   });
@@ -717,7 +619,6 @@
     } else if (isIOS) {
       closeSidebar();
       toast("Tap the Share button, then Add to Home Screen");
-<<<<<<< HEAD
     }
   });
   window.addEventListener("appinstalled", () => { installBtn.hidden = true; });
@@ -902,20 +803,11 @@
     root.dataset.fun = prefs.fun === "off" ? "off" : "on";
     if (window.BobenEmojiBg) window.BobenEmojiBg.refresh();
   }
-=======
-    }
-  });
-  window.addEventListener("appinstalled", () => { installBtn.hidden = true; });
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
 
   // ======================================================================
   // Start
   // ======================================================================
-<<<<<<< HEAD
   applyTheme(); applySize(); syncSegments();
-=======
-  applyTheme(); syncSegments();
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
   if (!store.chats.length || !current()) {
     if (store.chats.length) store.currentId = store.chats[0].id; else newChat();
   }
@@ -926,9 +818,6 @@
   }
   setMode(prefs.mode);
   renderAll(); autoGrow(); updateOnlineStatus();
-<<<<<<< HEAD
   applyFun(); updateSavedCount(); renderTimer();
   console.info("Boben, developed by Jhon Grover Longsud");
-=======
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
 })();

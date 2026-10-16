@@ -1,9 +1,6 @@
 """
 Django settings for Boben.
-<<<<<<< HEAD
 Developed by Jhon Grover Longsud.
-=======
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
 
 Accounts, sessions and OAuth (Google, GitHub, Facebook) live in the "accounts" app.
 Secrets (Gemini key, Django secret key, OAuth client secrets) are read from the
@@ -114,14 +111,16 @@ if not DEBUG:
 SITE_URL = os.environ.get("SITE_URL", "").strip().rstrip("/")
 
 # ---- OAuth (client secrets stay on the server) -------------------------------------
-# Client IDs are public. Client SECRETS must only come from the environment.
+# Client IDs are public, so the Google and GitHub ones are the defaults here (override them in .env if you like).
+# Client SECRETS are never written in code: they must only come from .env or real environment variables.
+# Facebook has no default: create an app at developers.facebook.com and set FACEBOOK_APP_ID and FACEBOOK_APP_SECRET.
 OAUTH_PROVIDERS = {
     "google": {
-        "client_id": os.environ.get("GOOGLE_CLIENT_ID", "").strip(),
+        "client_id": os.environ.get("GOOGLE_CLIENT_ID", "1061823963628-ka7d5qf50kpjce9h16iagfa2lcdk8od0.apps.googleusercontent.com").strip(),
         "client_secret": os.environ.get("GOOGLE_CLIENT_SECRET", "").strip(),
     },
     "github": {
-        "client_id": os.environ.get("GITHUB_CLIENT_ID", "").strip(),
+        "client_id": os.environ.get("GITHUB_CLIENT_ID", "Ov23li8iymLHAGbprCYS").strip(),
         "client_secret": os.environ.get("GITHUB_CLIENT_SECRET", "").strip(),
     },
     "facebook": {

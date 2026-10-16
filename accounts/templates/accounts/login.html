@@ -1,7 +1,12 @@
 {% extends "accounts/_base.html" %}
 {% load static %}
 {% block title %}Sign in · Boben{% endblock %}
-{% block back %}{% endblock %}
+{% block back %}
+<a class="back-btn" href="{% url 'accounts:signup' %}" id="historyBack" hidden>
+  <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+  <span>Back</span>
+</a>
+{% endblock %}
 {% block content %}
 <header class="auth-head">
   <span class="welcome-mark"><img src="{% static 'assistant/icons/icon-192.png' %}" alt="" width="52" height="52"></span>

@@ -257,6 +257,26 @@ class OAuthFlowTests(TestCase):
         r = self.client.get("/accounts/oauth/google/start/", follow=True)
         self.assertContains(r, "isn&#x27;t set up yet")
 
+    @override_settings(DEBUG=True, OAUTH_PROVIDERS={"facebook": {"client_id": "", "client_secret": ""}})
+    def test_unconfigured_provider_names_the_missing_keys_in_debug(self):
+        r = self.client.get("/accounts/oauth/facebook/start/", follow=True)
+        self.assertContains(r, "FACEBOOK_APP_ID and FACEBOOK_APP_SECRET")
+
+    @override_settings(DEBUG=False, OAUTH_PROVIDERS={"facebook": {"client_id": "", "client_secret": ""}})
+    def test_unconfigured_provider_hides_variable_names_in_production(self):
+        r = self.client.get("/accounts/oauth/facebook/start/", follow=True)
+        self.assertContains(r, "isn&#x27;t set up yet")
+        self.assertNotContains(r, "FACEBOOK_APP_SECRET")
+
+    @override_settings(DEBUG=True, OAUTH_PROVIDERS={"google": {"client_id": "", "client_secret": ""}})
+    def test_unconfigured_buttons_are_still_links_in_debug(self):
+        r = self.client.get("/accounts/login/")
+        self.assertContains(r, 'href="/accounts/oauth/google/start/"')
+
+    def test_sign_in_and_sign_up_pages_have_a_back_button(self):
+        self.assertContains(self.client.get("/accounts/login/"), 'id="historyBack"')
+        self.assertContains(self.client.get("/accounts/signup/"), "Back to sign in")
+
     def test_every_provider_creates_an_account_and_signs_in(self):
         for i, provider in enumerate(("google", "github", "facebook")):
             client = Client()

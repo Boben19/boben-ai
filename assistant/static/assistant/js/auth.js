@@ -2,6 +2,19 @@
 (function () {
   "use strict";
 
+  // Back button on the sign-in page. It only appears when the visitor really came from another page of this
+  // site (for example the sign-up page). It never appears after signing out, so "Back" can't reopen a chat page.
+  var back = document.getElementById("historyBack");
+  if (back && document.referrer) {
+    var from;
+    try { from = new URL(document.referrer); } catch (e) { from = null; }
+    var blocked = /^\/(accounts\/(login|logout|oauth|profile)|$)/;
+    if (from && from.origin === location.origin && !blocked.test(from.pathname)) {
+      back.hidden = false;
+      back.addEventListener("click", function (e) { e.preventDefault(); history.back(); });
+    }
+  }
+
   // Show / hide password
   document.querySelectorAll("[data-toggle-pw]").forEach(function (btn) {
     btn.addEventListener("click", function () {

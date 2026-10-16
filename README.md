@@ -42,7 +42,6 @@ boben_ai/
         └── icons/               <- PWA icons
 ```
 
-<<<<<<< HEAD
 ## Accounts, profile and personalization
 
 - **Sign-in is required** to use the chat and `/api/chat/` (this also keeps strangers from spending your Gemini quota). Pages: `/accounts/login/`, `/accounts/signup/`, `/accounts/profile/`.
@@ -52,19 +51,16 @@ boben_ai/
 - **Profile:** name, picture (resized to 256 px and stored in the database), bio, interests, personality traits, communication style, free-text preferences. Set or change your password there too.
 - **Personalization:** a master switch plus one switch per field decide what is added to the AI prompt on the server. The text is cleaned, framed as background information (not instructions), and is never sent to anyone but Gemini.
 - **Chats** are still stored in the browser, now kept separately for each account on a device. Chats saved before accounts existed move to the first account that signs in.
-- **Emojis** now drift softly inside the page background (under the text) and appear in headings and labels. Tap-to-pop and drag are gone because the emojis no longer sit on top. Star, heart and timer still play a short burst. Turn the background emojis off in Settings.
+- **Emojis** wiggle about in the page background, behind the glass panels, and appear in headings and labels. On a computer they shy away from the mouse pointer. Star, heart and timer still play a short burst. Turn the background emojis off in Settings.
 
-=======
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
 ## What the redesign added
 
 - **Look:** frosted-glass panels over a soft colour backdrop, iOS-style bubbles, rounded controls, safe-area support for iPhone notches, automatic light/dark mode.
 - **Multiple chats:** a sidebar list, rename by tapping the title, delete with Undo, and a new chat shortcut (Ctrl/Cmd + K, or long-press the app icon once installed).
 - **Modes:** Chat, Study, Code, Write, Plan. The mode is sent with each message and adds a short note to the personality (`MODE_NOTES` in `gemini.py`).
-<<<<<<< HEAD
 - **Settings sheet:** Auto/Light/Dark, reply length (Short/Balanced/Detailed), text size, and a link to your profile (your name now lives there).
 - **Reply tools:** copy, read aloud, write a new reply, copy button on code blocks, dictation (where the browser supports it), and save a chat as a .txt file.
-- **Background emojis:** soft emojis drift inside the page background, under the text, and appear in headings and labels. Turn them off in Settings. They stop moving if the device asks for reduced motion.
+- **Background emojis:** a set of emojis wiggle across the whole page behind the glass panels. On a computer they move away from the mouse pointer. Phones show fewer and slightly smaller ones. Turn them off in Settings. They stop moving if the device asks for reduced motion.
 - **Saved answers:** tap the star on any reply to keep it. Open the list from the sidebar to read, copy or remove it later.
 - **Follow-up chips:** after each reply, one tap sends things like "Quiz me on this" or "Explain simpler". The chips change with the mode.
 - **Stop button:** the send button turns into a stop button while Boben is replying.
@@ -72,10 +68,6 @@ boben_ai/
 - **Focus timer:** Focus / Short break / Long break with a progress ring, a note on what you're working on, a count of today's sessions, and a sound plus emoji shower when time is up. It keeps running if you reload the page.
 - **Text size and love button:** Small / Medium / Large text, and a heart on each reply that sends hearts floating up.
 - **About:** tap "Developed by Jhon Grover Longsud" in the sidebar.
-=======
-- **Settings sheet:** first name (so replies feel personal), Auto/Light/Dark, and reply length (Short/Balanced/Detailed).
-- **Reply tools:** copy, read aloud, write a new reply, copy button on code blocks, dictation (where the browser supports it), and save a chat as a .txt file.
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673
 - **Offline:** the app still opens and old chats stay readable. An "Offline" pill and a banner appear, and the message stays in the box until you reconnect.
 - **Safety:** mode, length and name are checked on the server against a fixed list before they reach the prompt. The API key still never leaves the server.
 - **Voice of the app:** the interface and the personality never label themselves as "AI". If someone sincerely asks whether they are talking to a person or a program, Boben answers honestly.
@@ -112,12 +104,12 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-Open http://127.0.0.1:8000. You will land on the sign-in page. Create an account, or use a provider once it is configured below.
+Open http://127.0.0.1:8000. You will land on the sign-in page (it has a Back button when you arrive from another page of the site, and the sign-up and profile pages always have one). Create an account, or use a provider once it is configured below.
 To run the tests (they don't use your API key or any provider): `python manage.py test`.
 
 ## OAuth setup (what you must configure)
 
-Put the secrets in `.env` (never in code or Git), then restart the server. A provider button only works when both its ID and secret are set. While `DJANGO_DEBUG=True`, unconfigured providers show greyed out. When it is `False` they are hidden.
+Put the secrets in `.env` (never in code or Git), then restart the server. A provider button only works when both its ID and secret are set. The Google and GitHub **client IDs** are already built in as defaults (they are public), so for those two you only add the **secret**. Facebook has no default: you must create an app and set both `FACEBOOK_APP_ID` and `FACEBOOK_APP_SECRET`. While `DJANGO_DEBUG=True`, a provider without keys still shows (slightly faded) and tapping it tells you exactly which `.env` variables are missing. When `DJANGO_DEBUG=False` such providers are hidden.
 
 The callback URL is `<your site>` + `/accounts/oauth/<provider>/callback/`. Use `http://127.0.0.1:8000` locally (register `http://localhost:8000` too if you open the site that way), and your real `https://` address in production.
 
@@ -178,13 +170,8 @@ Testing on a phone: the phone needs HTTPS to install the app (plain `http://192.
 ## Before deploying or sharing
 
 - Never commit `.env`. If a key ever leaks, delete it in Google AI Studio and make a new one.
-<<<<<<< HEAD
 - In production set `DJANGO_DEBUG=False`, a real `DJANGO_SECRET_KEY`, your domain in `DJANGO_ALLOWED_HOSTS`, `SITE_URL`, and `DJANGO_CSRF_TRUSTED_ORIGINS`. Serve static files with `collectstatic` and a server such as WhiteNoise, and use HTTPS.
 - Put `DATABASE_PATH` on storage that survives restarts, and back it up. It holds accounts, profiles and pictures.
 - If a client secret ever leaks, regenerate it in the provider's dashboard and update `.env`.
 - There is no email sending yet, so there is no "forgot password" and no email verification for email sign-ups. Adding an email backend is the next step for both.
 - Chat history is stored only in the user's own browser (localStorage), per account. "Delete all chats" in Settings removes it.
-=======
-- In production set `DJANGO_DEBUG=False`, a real `DJANGO_SECRET_KEY`, and your domain in `DJANGO_ALLOWED_HOSTS`. Serve static files with `collectstatic` and a server such as WhiteNoise, and use HTTPS.
-- Chat history is stored only in the user's own browser (localStorage). "Delete all chats" in Settings removes it.
->>>>>>> 13c331eafb3c39296783ecf47e5d9e8e7d353673

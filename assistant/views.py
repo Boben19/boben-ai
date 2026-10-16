@@ -11,7 +11,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 from accounts.personalization import build_profile_context, first_name_for_ai
 
-
+from .gemini import LENGTH_NOTES, MODE_NOTES, GeminiError, ask_gemini
 
 
 @ensure_csrf_cookie
@@ -50,7 +50,7 @@ def chat(request):
     """
     POST /api/chat/
     Body: {"message": "...", "history": [{"role": "user"|"assistant", "text": "..."}],
-            "mode": "chat|study|code|write|plan", "length": "short|balanced|detailed", "name": "..."}
+           "mode": "chat|study|code|write|plan", "length": "short|balanced|detailed", "name": "..."}
     Returns: {"reply": "..."} or {"error": "..."}
     CSRF is checked automatically by Django's middleware. Signed-in users only (401 otherwise).
     The user's saved profile is added to the prompt on the server, limited to what they allowed.
